@@ -1,4 +1,4 @@
-// app/api/bluesky/profile/route.ts
+//app/api/bluesky/profile/route.ts
 import { NextResponse } from "next/server";
 import { getProfile } from "../../bluesky";
 
