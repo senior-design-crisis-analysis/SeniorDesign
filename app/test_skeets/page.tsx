@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation';
 import BlueskyProfile from './components/BlueskyProfile';
+import BlueskyProfileCard from './components/BlueskyProfileCard';
 
 export default async function Page() {
   const supabase = await createClient()
@@ -17,7 +18,9 @@ export default async function Page() {
       <pre>{JSON.stringify(notes, null, 2)}</pre>
       <main className="p-8">
         <h1 className="text-2xl font-bold mb-4">Bluesky Profile Viewer</h1>
-        <BlueskyProfile handle="sara012345.bsky.social" />
+        <BlueskyProfileCard handle="sara012345.bsky.social" />
+        <br />
+        <BlueskyProfileCard handle="testapio.bsky.social" />
       </main>
     </div>
   );
