@@ -1,35 +1,42 @@
 import WebSocket from "ws";
-//import cborToLexRecord from "@atproto/api";
+import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 import { cborDecode } from "@atproto/common";
 import type { AppBskyFeedPost } from "@atproto/api";
 
+// Load Supabase credentials
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // service role for writes
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Missing Supabase environment variables.");
+}
+
+console.log("Supabase URL loaded:", !!supabaseUrl);
+console.log("Supabase Service Key loaded:", !!supabaseKey);
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const FIREHOSE_URL = "wss://bsky.network/xrpc/com.atproto.sync.subscribeRepos";
-
 // Buffer config
-const BATCH_SIZE = 50;   // insert every 50 posts
-const FLUSH_INTERVAL = 5000; // or every 5s
+const BATCH_SIZE = 50;
+const FLUSH_INTERVAL = 5000;
+const MAX_BUFFER_SIZE = 500; // Prevent memory overload
 
 // In-memory buffer
 interface PostRow {
-  timestamp: string;   // ISO 8601 timestamp
+  timestamp: string;
   content: string;
 }
 
 let buffer: PostRow[] = [];
 let flushing = false;
 
+// Flush buffer to Supabase
 async function flushBuffer() {
   if (flushing || buffer.length === 0) return;
   flushing = true;
 
   const toInsert = buffer.splice(0, BATCH_SIZE);
-
   try {
     const { error } = await supabase.from("posts").insert(toInsert);
     if (error) {
@@ -46,60 +53,69 @@ async function flushBuffer() {
   }
 }
 
-
-// Periodic flush (time-based)
+// Periodic flush
 setInterval(() => {
   if (buffer.length > 0) flushBuffer();
 }, FLUSH_INTERVAL);
 
+// Commit interfaces
 interface CommitOp {
   action: string;
   path: string;
   cid?: string;
-  record?: PostRow;
+  record?: unknown;
 }
 
 interface CommitMsg {
   seq: number;
   repo: string;
   time: string;
-  commit?: {
-    ops: CommitOp[];
-  };
+  commit?: { ops: CommitOp[] };
 }
 
+// WebSocket connection
+const FIREHOSE_URL = "wss://bsky.network/xrpc/com.atproto.sync.subscribeRepos";
 const ws = new WebSocket(FIREHOSE_URL);
 
 ws.on("open", () => {
   console.log("Connected to Bluesky firehose");
 });
 
-ws.on("message", (data) => {
+ws.on("message", (data: WebSocket.RawData) => {
   try {
-    const msg = JSON.parse(data.toString()) as CommitMsg;
-    if (!msg.commit?.ops) return;
+    // Only parse string messages
+    if (typeof data === "string") {
+      const msg = JSON.parse(data) as CommitMsg;
+      if (!msg.commit?.ops) return;
 
-    for (const op of msg.commit.ops) {
-      if (op.path.startsWith("app.bsky.feed.post") && op.action === "create" && op.record) {
-        try {
-          const record = cborDecode(op.record) as AppBskyFeedPost.Record;
+      for (const op of msg.commit.ops) {
+        if (op.path.startsWith("app.bsky.feed.post") && op.action === "create" && op.record) {
+          try {
+            const record = cborDecode(op.record) as AppBskyFeedPost.Record;
+            if (record?.text) {
+              if (buffer.length < MAX_BUFFER_SIZE) {
+                buffer.push({
+                  content: record.text,
+                  timestamp: record.createdAt ?? msg.time,
+                });
+              } else {
+                // drop extra posts if buffer is full
+                console.warn("Buffer full, dropping post");
+              }
 
-          if (record?.text) {
-            buffer.push({
-              content: record.text,
-              timestamp: record.createdAt ?? msg.time,
-            });
-
-            // Flush immediately if buffer is too big
-            if (buffer.length >= BATCH_SIZE) flushBuffer();
+              if (buffer.length >= BATCH_SIZE) flushBuffer();
+            }
+          } catch (err: unknown) {
+            if (err instanceof Error) console.error("Decode error:", err.message);
           }
-        } catch (err) {
-          console.error("Decode error:", err);
         }
       }
+
+      if (buffer.length >= BATCH_SIZE) flushBuffer();
     }
-  } catch (err) {
-    console.error("Parse error:", err);
+    // Silently ignore binary/CBOR messages
+  } catch (err: unknown) {
+    // Silently ignore invalid JSON
   }
 });
 
@@ -107,6 +123,10 @@ ws.on("error", (err) => {
   console.error("WebSocket error:", err);
 });
 
-ws.on("close", () => {
-  console.log("Disconnected from firehose");
+ws.on("close", (code, reason) => {
+  console.log(`Disconnected from firehose. Code: ${code}, Reason: ${reason}`);
 });
+
+// Handle uncaught exceptions
+process.on("unhandledRejection", (reason) => console.error("Unhandled Rejection:", reason));
+process.on("uncaughtException", (err) => console.error("Uncaught Exception:", err));
