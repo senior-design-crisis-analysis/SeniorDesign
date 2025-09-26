@@ -38,7 +38,7 @@ export default function Home() {
               href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
               target="_blank"
               className="font-bold hover:underline"
-              rel="noreferrer"
+              rel="noreferrer noopener"
             >
               Supabase
             </a>
