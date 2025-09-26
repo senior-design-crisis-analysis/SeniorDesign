@@ -7,7 +7,7 @@ export default function BlueskyProfile({ handle }: { handle: string }) {
   const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`/api/bluesky/profile?handle=${handle}`)
+    fetch(`/test_skeets/api/bluesky/profile?handle=${handle}`)
       .then((res) => res.json())
       .then(setProfile);
   }, [handle]);
