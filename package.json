@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "batch": "app/bluesky_posts/batch.ts"
+    "batch": "ts-node --project tsconfig.scripts.json app/bluesky_posts/batch.ts",
+    "backfill": "node --loader ts-node/esm app/bluesky_posts/backfill.ts"
   },
   "dependencies": {
     "@atproto/api": "^0.16.9",

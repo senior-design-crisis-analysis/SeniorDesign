@@ -32,10 +32,10 @@ async function flushBuffer() {
         const { error } = await supabase.from("posts").insert(toInsert);
         if (error) {
             console.error("Insert error:", error);
-            buffer = toInsert.concat(buffer);
+            buffer = toInsert.concat(buffer); // Re-add failed inserts
         }
         else {
-            console.log(`Inserted ${toInsert.length} posts`);
+            console.log(`Inserted ${toInsert.length} post(s) into Supabase.`);
         }
     }
     catch (err) {
@@ -57,45 +57,43 @@ const ws = new ws_1.default(FIREHOSE_URL);
 ws.on("open", () => {
     console.log("Connected to Bluesky firehose");
 });
+// WebSocket message handler
 ws.on("message", (data) => {
+    // Ignore binary/CBOR messages entirely
+    if (typeof data !== "string")
+        return;
+    let msg;
     try {
-        // Only parse string messages
-        if (typeof data === "string") {
-            const msg = JSON.parse(data);
-            if (!msg.commit?.ops)
-                return;
-            for (const op of msg.commit.ops) {
-                if (op.path.startsWith("app.bsky.feed.post") && op.action === "create" && op.record) {
-                    try {
-                        const record = (0, common_1.cborDecode)(op.record);
-                        if (record?.text) {
-                            if (buffer.length < MAX_BUFFER_SIZE) {
-                                buffer.push({
-                                    content: record.text,
-                                    timestamp: record.createdAt ?? msg.time,
-                                });
-                            }
-                            else {
-                                // drop extra posts if buffer is full
-                                console.warn("Buffer full, dropping post");
-                            }
-                            if (buffer.length >= BATCH_SIZE)
-                                flushBuffer();
-                        }
-                    }
-                    catch (err) {
-                        if (err instanceof Error)
-                            console.error("Decode error:", err.message);
-                    }
-                }
-            }
-            if (buffer.length >= BATCH_SIZE)
-                flushBuffer();
-        }
-        // Silently ignore binary/CBOR messages
+        msg = JSON.parse(data);
     }
-    catch (err) {
-        // Silently ignore invalid JSON
+    catch {
+        return; // Ignore invalid JSON silently
+    }
+    if (!msg.commit?.ops)
+        return;
+    for (const op of msg.commit.ops) {
+        if (op.path.startsWith("app.bsky.feed.post") && op.action === "create" && op.record) {
+            try {
+                const record = (0, common_1.cborDecode)(op.record);
+                if (!record?.text)
+                    continue;
+                if (buffer.length < MAX_BUFFER_SIZE) {
+                    buffer.push({
+                        content: record.text,
+                        timestamp: record.createdAt ?? msg.time,
+                    });
+                }
+                else {
+                    console.warn("Buffer full, dropping post");
+                }
+                if (buffer.length >= BATCH_SIZE)
+                    flushBuffer();
+            }
+            catch (err) {
+                if (err instanceof Error)
+                    console.error("Decode error:", err.message);
+            }
+        }
     }
 });
 ws.on("error", (err) => {
