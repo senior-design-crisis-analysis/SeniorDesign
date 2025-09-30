@@ -1,4 +1,4 @@
-// app/bluesky_posts/backfill.ts
+//app/bluesky_posts/backfill.ts
 import { BskyAgent } from '@atproto/api';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
@@ -24,6 +24,7 @@ async function login() {
 }
 
 // ---------------- Backfill Function ----------------
+/*
 async function backfill(username: string, limit = 100) {
   console.log(`🔄 Backfilling posts for @${username}...`);
 
@@ -70,11 +71,48 @@ console.log(`✅ Inserted ${rows.length} posts`);
 
   console.log(`🎉 Finished backfill: ${fetched} posts`);
 }
+*/
+
+async function backfillAll(username: string) {
+  let cursor: string | undefined = undefined;
+  let totalFetched = 0;
+
+  while (true) {
+    const res = await agent.api.app.bsky.feed.getAuthorFeed({
+      actor: username,
+      cursor,
+      limit: 50,
+    });
+
+    const feed = res.data.feed;
+    if (!feed.length) break;
+
+    const rows = feed.map((item: any) => ({
+      uri: item.post.uri,
+      cid: item.post.cid,
+      text: item.post.record?.text ?? '',
+      author: item.post.author.handle,
+      indexedAt: item.post.indexedAt,
+    }));
+
+    await supabase.from('posts').upsert(rows, { onConflict: 'uri' });
+    
+    totalFetched += feed.length;
+    console.log(`✅ Total fetched: ${totalFetched}`);
+
+    cursor = res.data.cursor;
+    if (!cursor) break;
+    
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  console.log(`🎉 Complete! Fetched ${totalFetched} total posts`);
+}
 
 // ---------------- Main Execution ----------------
 async function main() {
   await login(); // Automatically logs in and sets JWT
-  await backfill('bsky.app', 200); // Replace with target username & total posts
+  await backfillAll('bsky.app'); // Replace with target username & total posts
 }
 
 main().catch(console.error);
