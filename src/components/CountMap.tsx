@@ -9,7 +9,7 @@ const CountMap = () => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
   useEffect(() => {
-    mapboxgl.accessToken = "pk.eyJ1Ijoic3VzYW56aDRuZyIsImEiOiJjbWc2d2d0encwaGJiMmxvaW9hc3lib2x3In0.VcIezYrQUo4Raczn4jyQaw";
+    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
     if (!mapContainerRef.current) return;
 
