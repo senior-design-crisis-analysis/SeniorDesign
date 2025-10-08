@@ -1,0 +1,17 @@
+{
+  "/auth/confirm/route": "app/auth/confirm/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/opengraph-image.png/route": "app/opengraph-image.png/route.js",
+  "/test_skeets/api/bluesky/profile/route": "app/test_skeets/api/bluesky/profile/route.js",
+  "/twitter-image.png/route": "app/twitter-image.png/route.js",
+  "/auth/error/page": "app/auth/error/page.js",
+  "/auth/forgot-password/page": "app/auth/forgot-password/page.js",
+  "/auth/update-password/page": "app/auth/update-password/page.js",
+  "/auth/sign-up/page": "app/auth/sign-up/page.js",
+  "/auth/sign-up-success/page": "app/auth/sign-up-success/page.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/test_skeets/page": "app/test_skeets/page.js",
+  "/page": "app/page.js",
+  "/protected/page": "app/protected/page.js"
+}
