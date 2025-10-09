@@ -1,0 +1,17 @@
+{
+  "/auth/confirm/route": "/auth/confirm",
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/opengraph-image.png/route": "/opengraph-image.png",
+  "/test_skeets/api/bluesky/profile/route": "/test_skeets/api/bluesky/profile",
+  "/twitter-image.png/route": "/twitter-image.png",
+  "/auth/error/page": "/auth/error",
+  "/auth/forgot-password/page": "/auth/forgot-password",
+  "/auth/update-password/page": "/auth/update-password",
+  "/auth/sign-up/page": "/auth/sign-up",
+  "/auth/sign-up-success/page": "/auth/sign-up-success",
+  "/auth/login/page": "/auth/login",
+  "/test_skeets/page": "/test_skeets",
+  "/page": "/",
+  "/protected/page": "/protected"
+}
