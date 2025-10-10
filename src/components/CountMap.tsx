@@ -129,6 +129,7 @@ const CountMap = () => {
 
   return (
     <div
+      className="CountMap"
       id="map"
       ref={mapContainerRef}
       style={{ width: "100vw", height: "100vh" }}
