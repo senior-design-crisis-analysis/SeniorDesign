@@ -24,23 +24,23 @@ const HelpRequestPost = ({ data }: Props) => {
   const { handle, category, severity, text, location} = data;
 
   return (
-    <Card className="HelpRequestPost">
-        <CardHeader>
-        <CardDescription><strong>@{handle}</strong></CardDescription>
-        <CardAction>
-            <Badge variant="outline">{category}</Badge>
-            <Badge variant="destructive">{severity}</Badge>
-        </CardAction>
-      </CardHeader>
+      <Card className="w-full max-w-xl HelpRequestPost">
+          <CardHeader>
+          <CardDescription><strong>@{handle}</strong></CardDescription>
+          <CardAction>
+              <Badge variant="outline">{category}</Badge>
+              <Badge variant="destructive">{severity}</Badge>
+          </CardAction>
+        </CardHeader>
 
-      <CardContent>
-        <p>{text}</p>
-      </CardContent>
-      
+        <CardContent>
+          <p>{text}</p>
+        </CardContent>
+        
 
-      <p>{location}</p>
-      {/*<p>{time}</p>*/}
-    </Card>
+        <p>{location}</p>
+        {/*<p>{time}</p>*/}
+      </Card>
   );
 };
 
