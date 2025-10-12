@@ -1,12 +1,7 @@
 //import { useEffect, useRef } from "react";
 import { Badge } from "./ui/badge";
-import {   Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle, } from "./ui/card";
+import './HelpRequestPost.css'
+import { MapPin, Clock4 } from 'lucide-react';
 //import supabase from "../supabase-client";
 
 type Props = {
@@ -16,31 +11,38 @@ type Props = {
     severity: string;
     text: string;
     location: string;
-    //time: string;
+    time: string;
   };
 };
 
 const HelpRequestPost = ({ data }: Props) => {
-  const { handle, category, severity, text, location} = data;
+  const { handle, category, severity, text, location, time } = data;
 
   return (
-      <Card className="w-full max-w-xl HelpRequestPost">
-          <CardHeader>
-          <CardDescription><strong>@{handle}</strong></CardDescription>
-          <CardAction>
-              <Badge variant="outline">{category}</Badge>
-              <Badge variant="destructive">{severity}</Badge>
-          </CardAction>
-        </CardHeader>
+      <div className="HelpRequestPost">
+          <div className="header">
+            <p className="handle-text">@{handle}</p>
+            <div className="badges">
+              <Badge variant="outline" className="capitalize">{category}</Badge>
+              <Badge variant="destructive" className="capitalize">{severity}</Badge>
+            </div>
+          </div>
 
-        <CardContent>
-          <p>{text}</p>
-        </CardContent>
-        
+          <div className="content" >
+            <p className="post-text">{text}</p>
+          </div>
 
-        <p>{location}</p>
-        {/*<p>{time}</p>*/}
-      </Card>
+          <div className="footer">
+            <div className="icon-label">
+              <MapPin size={16} className="text-slate-500" />
+              <p className="label-text">{location}</p>
+            </div>
+            <div className="icon-label">
+              <Clock4 size={16} />
+              <p className="label-text">{time}</p>
+            </div>
+          </div>
+      </div>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import supabase from "../supabase-client";
-
+import './CountMap.css'
 import "mapbox-gl/dist/mapbox-gl.css";
 
 const CountMap = () => {
