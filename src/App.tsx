@@ -40,6 +40,7 @@ import supabase from './supabase-client'
     original_text: string | null;
     location_mentioned: string | null;
     created_at: string | null;
+    help_req: boolean | null;
   };
 
 function App() {
@@ -80,20 +81,20 @@ function App() {
     <>
     <Card className="w-full container DisasterPostsintheUnitedStates">
       <CardHeader>
-          <CardTitle>Disaster Posts in the United States</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-left">Disaster Posts in the United States</CardTitle>
+          <CardDescription className="text-left">
             Count of disaster posts on Bluesky
           </CardDescription>
           <CardAction>
             <div className="flex items-center space-x-2">
-              <DateRangePicker
+              {/*<DateRangePicker
                 onUpdate={(values) => console.log(values)}
                 initialDateFrom="2025-10-01"
                 initialDateTo="2025-10-31"
                 align="start"
                 locale="en-GB"
                 showCompare={false}
-              />
+              />*/}
               <div className="flex flex-col gap-3">
                 <Popover open={open} onOpenChange={setOpen}>
                   <PopoverTrigger asChild>
@@ -177,7 +178,9 @@ function App() {
         </div>
         <div className="frame-clip-content max-h-[473px] w-[377px] overflow-y-auto overflow-x-hidden scrollbar-none">
           <div className='frame-posts'>
-            {posts.map((post) => (
+            {posts
+            .filter((post) => post.help_req === true)
+            .map((post) => (
               <div key={post.uri}>
                 <HelpRequestPost
                   data={{
