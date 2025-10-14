@@ -1,5 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import CountMap from './components/CountMap'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from './components/ui/alert'
 import {   Card,
   CardAction,
   CardContent,
@@ -9,7 +14,7 @@ import {   Card,
   CardTitle,
 } from './components/ui/card'
 import type { DateRange } from 'react-day-picker'
-import { ChevronDownIcon } from "lucide-react"
+import { ChevronDownIcon, Loader } from "lucide-react"
 import {
   Popover,
   PopoverContent,
@@ -43,15 +48,33 @@ import supabase from './supabase-client'
     help_req: boolean | null;
   };
 
+  const isInRange = (iso: string | null, from: Date, to: Date) => {
+    if (!iso) return false;                 // ignore rows without created_at
+    const d = new Date(iso);
+    return d >= from && d <= to;
+  };
+
 function App() {
   const [posts, setPosts] = useState<Row[]>([]);
   const [error, setError] = useState<string | null>(null);
-
   const [open, setOpen] = useState(false)
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(2025, 5, 12), // Example start date (June 12, 2025)
-    to: new Date(2025, 6, 15),   // Example end date (July 15, 2025)
-  })
+  from: new Date(),               // today 00:00
+  to: new Date(),                 // today 23:59:59 will still match
+  // or for a 7-day window:
+  // from: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+  // to  : new Date(),
+});
+
+const filteredPosts = useMemo(() => {
+  if (!dateRange?.from || !dateRange?.to) return posts;
+
+  return posts.filter(p =>
+    p.help_req === true && //only displays help requests
+    p.location_mentioned != null && //only displays help requests with a location
+    isInRange(p.created_at, dateRange.from!, dateRange.to!)
+  );
+}, [posts, dateRange]);
 
     useEffect(() => {
     const fetchPosts = async () => {
@@ -72,7 +95,15 @@ function App() {
   }, []);
 
   if (error) return <p style={{ color: 'red' }}>Supabase error: {error}</p>;
-  if (!posts.length) return <p>Loading…</p>;
+  if (!posts.length) return (
+    <Alert>
+      <Loader />
+      <AlertTitle className='text-left'>Loading</AlertTitle>
+      <AlertDescription>
+        Thank you for your patience with Disaster Post Analysis Dashboard!
+      </AlertDescription>
+    </Alert>
+  );
 
 
 
@@ -177,23 +208,28 @@ function App() {
           <p className='card-header-text'>Help Request Posts</p>
         </div>
         <div className="frame-clip-content max-h-[473px] w-[377px] overflow-y-auto overflow-x-hidden scrollbar-none">
-          <div className='frame-posts'>
-            {posts
-            .filter((post) => post.help_req === true)
-            .map((post) => (
-              <div key={post.uri}>
-                <HelpRequestPost
-                  data={{
-                    handle: post.author ?? 'Anonymous',
-                    category: post.disaster_type ?? 'unknown',
-                    severity: post.severity_level ?? 'unknown',
-                    text: post.original_text ?? '',
-                    location: post.location_mentioned ?? 'unknown',
-                    time: post.created_at ?? '',
-                  }}
-                />
-              </div>
-            ))}
+          <div className="frame-posts">
+            {filteredPosts.length === 0 ? (
+              <p className="handle-text text-center">
+                No help requests in the selected period.
+              </p>
+            ) : (
+              filteredPosts
+              .map(post => (
+                <div key={post.uri}>
+                  <HelpRequestPost
+                    data={{
+                      handle: post.author ?? 'Anonymous',
+                      category: post.disaster_type ?? 'unknown',
+                      severity: post.severity_level ?? 'unknown',
+                      text: post.original_text ?? '',
+                      location: post.location_mentioned ?? 'unknown',
+                      time: post.created_at ?? '',
+                    }}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </div>
       </Card>
