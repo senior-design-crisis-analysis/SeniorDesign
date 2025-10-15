@@ -1,68 +1,65 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* Import Inter font */
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
+/* Theme and base styles */
+@layer base {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    --background: 242 242 247; /* slate-50 */
+    --foreground: 30 30 31; /* slate-900 */
+    --card: 255 255 255; /* white */
+    --card-foreground: 30 30 31; /* slate-900 */
+    --popover: 255 255 255; /* white */
+    --popover-foreground: 30 30 31; /* slate-900 */
+    --primary: 99 102 241; /* indigo-500 */
+    --primary-foreground: 255 255 255;
+    --secondary: 229 231 235; /* slate-200 */
+    --secondary-foreground: 30 30 31;
+    --muted: 241 245 249; /* slate-100 */
+    --muted-foreground: 107 114 128; /* slate-500 */
+    --accent: 229 231 235; /* slate-200 */
+    --accent-foreground: 30 30 31;
+    --destructive: 239 68 68; /* red-500 */
+    --destructive-foreground: 255 255 255;
+    --border: 209 213 219; /* slate-300 */
+    --input: 255 255 255; /* white */
+    --ring: 99 102 241; /* indigo-500 */
+    --radius: 0.5rem;
+    --font-family: "Inter";
   }
-  a:hover {
-    color: #747bff;
+
+  .dark {
+    --background: 30 30 31; /* slate-900 */
+    --foreground: 242 242 247; /* slate-50 */
+    --card: 45 45 48; /* slate-800 */
+    --card-foreground: 242 242 247; /* slate-50 */
+    --popover: 45 45 48; /* slate-800 */
+    --popover-foreground: 242 242 247; /* slate-50 */
+    --primary: 165 180 252; /* indigo-300 */
+    --primary-foreground: 30 30 31; /* slate-900 */
+    --secondary: 75 85 99; /* slate-700 */
+    --secondary-foreground: 242 242 247; /* slate-50 */
+    --muted: 75 85 99; /* slate-700 */
+    --muted-foreground: 209 213 219; /* slate-300 */
+    --accent: 75 85 99; /* slate-700 */
+    --accent-foreground: 242 242 247; /* slate-50 */
+    --destructive: 248 113 113; /* red-400 */
+    --destructive-foreground: 30 30 31; /* slate-900 */
+    --border: 75 85 99; /* slate-700 */
+    --input: 45 45 48; /* slate-800 */
+    --ring: 165 180 252; /* indigo-300 */
   }
-  button {
-    background-color: #f9f9f9;
+
+  /* Global background, text color, and font */
+  body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    font-family: var(--font-family);
+    font-size: 14px;
+    line-height: 1.5;
   }
 }

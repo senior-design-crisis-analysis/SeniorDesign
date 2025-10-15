@@ -1,16 +1,14 @@
-import { useState, useEffect } from 'react'
-import CountMap from './components/CountMap'
-import './App.css'
-import supabase from './supabase-client'
+//import { useState, useEffect } from 'react'
+//import CountMap from './components/CountMap'
+import TableSkeetTable from "./components/posts_table/ExtractedInfoTable";
+import "./index.css";
 
 function App() {
-
-
   return (
     <>
-      <CountMap />
+      <TableSkeetTable />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
