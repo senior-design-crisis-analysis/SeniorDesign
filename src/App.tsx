@@ -59,12 +59,11 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false)
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-  from: new Date(),               // today 00:00
-  to: new Date(),                 // today 23:59:59 will still match
-  // or for a 7-day window:
-  // from: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-  // to  : new Date(),
+  from: new Date(),// today 00:00
+  to: new Date(),// today 23:59:59 will still match
 });
+  const [disaster, setDisaster] = useState<string | undefined>(undefined);
+  const [severity, setSeverity] = useState<string | undefined>(undefined);
 
 const filteredPosts = useMemo(() => {
   if (!dateRange?.from || !dateRange?.to) return posts;
@@ -72,9 +71,11 @@ const filteredPosts = useMemo(() => {
   return posts.filter(p =>
     p.help_req === true && //only displays help requests
     p.location_mentioned != null && //only displays help requests with a location
-    isInRange(p.created_at, dateRange.from!, dateRange.to!)
+    isInRange(p.created_at, dateRange.from!, dateRange.to!) && //only displays posts within the date range
+    (disaster === undefined || (p.disaster_type && p.disaster_type.toLowerCase() === disaster)) && //displays posts of disaster filter
+    (severity === undefined || (p.severity_level && p.severity_level.toLowerCase() === severity)) //displays posts of severity filter
   );
-}, [posts, dateRange]);
+}, [posts, dateRange, disaster, severity]);
 
     useEffect(() => {
     const fetchPosts = async () => {
@@ -163,12 +164,13 @@ const filteredPosts = useMemo(() => {
                 />*/}
               </div>
 
-            <Select>
+            <Select value={severity ?? 'all'} onValueChange={v => setSeverity(v === 'all' ? undefined : v)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Severity Level" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
+                  <SelectItem value="all">All Severity Levels</SelectItem>
                   <SelectItem value="high">High</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="low">Low</SelectItem>
@@ -176,12 +178,13 @@ const filteredPosts = useMemo(() => {
               </SelectContent>
             </Select>
 
-            <Select>
+            <Select value={disaster ?? 'all'} onValueChange={v => setDisaster(v === 'all' ? undefined : v)}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Disaster" />
+                <SelectValue placeholder="All Disasters" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
+                  <SelectItem value="all">All Disasters</SelectItem>
                   <SelectItem value="accident">Accident</SelectItem>
                   <SelectItem value="earthquake">Earthquake</SelectItem>
                   <SelectItem value="flood">Flood</SelectItem>

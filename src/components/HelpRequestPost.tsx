@@ -1,4 +1,5 @@
 //import { useEffect, useRef } from "react";
+import { timeAgo } from "../lib/timeAgo";
 import { Badge } from "./ui/badge";
 import './HelpRequestPost.css'
 import { MapPin, Clock4 } from 'lucide-react';
@@ -17,6 +18,7 @@ type Props = {
 
 const HelpRequestPost = ({ data }: Props) => {
   const { handle, category, severity, text, location, time } = data;
+  const prettyTime = time ? timeAgo(time) : '';
 
   return (
       <div className="HelpRequestPost">
@@ -38,8 +40,9 @@ const HelpRequestPost = ({ data }: Props) => {
               <p className="label-text">{location}</p>
             </div>
             <div className="icon-label">
-              <Clock4 size={16} />
-              <p className="label-text">{time}</p>
+              <Clock4 size={16} className="text-slate-500" />
+              {/*<p className="label-text">{time}</p>*/}
+              <p className="label-text">{prettyTime}</p>
             </div>
           </div>
       </div>
