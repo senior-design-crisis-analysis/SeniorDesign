@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import CountMap from './components/CountMap'
 import './App.css'
-import supabase from './supabase-client'
+//import supabase from './supabase-client'
 
 function App() {
 
