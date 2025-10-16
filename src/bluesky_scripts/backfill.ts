@@ -16,7 +16,7 @@ const agent = new BskyAgent({ service: 'https://bsky.social' });
 // ---------------- Login Function ----------------
 async function login() {
   const username = process.env.BLUESKY_USERNAME!;
-  const password = process.env.BLUESKY_PASSWORD!;
+  //const password = process.env.BLUESKY_PASSWORD!;
 
   //const session = await agent.login({ identifier: username, password });
   console.log('✅ Logged in as', username);
