@@ -58,10 +58,15 @@ function App() {
   const [posts, setPosts] = useState<Row[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false)
+
+  const today = new Date();
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(today.getFullYear() - 1); // 1 year ago
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-  from: new Date(),// today 00:00
-  to: new Date(),// today 23:59:59 will still match
-});
+    from: oneYearAgo,   // 00:00 on the same day last year
+    to: today,          // 00:00 today (inclusive for your ≤ test)
+  });
+  
   const [disaster, setDisaster] = useState<string | undefined>(undefined);
   const [severity, setSeverity] = useState<string | undefined>(undefined);
 
@@ -185,13 +190,16 @@ const filteredPosts = useMemo(() => {
               <SelectContent>
                 <SelectGroup>
                   <SelectItem value="all">All Disasters</SelectItem>
-                  <SelectItem value="accident">Accident</SelectItem>
+                  <SelectItem value="auto_accident">Auto Accident</SelectItem>
                   <SelectItem value="earthquake">Earthquake</SelectItem>
+                  <SelectItem value="extreme_heat">Extreme Heat</SelectItem>
                   <SelectItem value="flood">Flood</SelectItem>
                   <SelectItem value="fire">Fire</SelectItem>
                   <SelectItem value="hurricane">Hurricane</SelectItem>
-                  <SelectItem value="tornado">Tornado</SelectItem>
+                  <SelectItem value="severe_storm">Severe Storm</SelectItem>
                   <SelectItem value="shooting">Shooting</SelectItem>
+                  <SelectItem value="tornado">Tornado</SelectItem>
+                  <SelectItem value="tropical_storm">Tropical Storm</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -204,8 +212,8 @@ const filteredPosts = useMemo(() => {
           </div>
         </CardAction>
       </CardHeader>
-      <CardContent>
-      {/*<CountMap />*/}
+      <CardContent className='DPITUSContainer'>
+      <CountMap />
       <Card className='w-full max-w-sm HelpRequestPosts'>
         <div className='card-header'>
           <p className='card-header-text'>Help Request Posts</p>
