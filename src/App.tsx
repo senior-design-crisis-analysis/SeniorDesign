@@ -22,7 +22,7 @@ import {
 } from './components/ui/popover'
 import { Button } from './components/ui/button'
 import { Calendar } from './components/ui/calendar'
-import { DateRangePicker } from './components/ui/date-range-picker'
+//import { DateRangePicker } from './components/ui/date-range-picker'
 import {
   Select,
   SelectContent,
@@ -41,6 +41,8 @@ import supabase from './supabase-client'
     uri: string;
     author: string | null;
     disaster_type: string | null;
+    longitude: number | null;
+    latitude: number | null;
     severity_level: string | null;
     original_text: string | null;
     location_mentioned: string | null;
@@ -66,7 +68,7 @@ function App() {
     from: oneYearAgo,   // 00:00 on the same day last year
     to: today,          // 00:00 today (inclusive for your ≤ test)
   });
-  
+
   const [disaster, setDisaster] = useState<string | undefined>(undefined);
   const [severity, setSeverity] = useState<string | undefined>(undefined);
 
@@ -213,7 +215,7 @@ const filteredPosts = useMemo(() => {
         </CardAction>
       </CardHeader>
       <CardContent className='DPITUSContainer'>
-      <CountMap />
+      <CountMap posts={filteredPosts} />
       <Card className='w-full max-w-sm HelpRequestPosts'>
         <div className='card-header'>
           <p className='card-header-text'>Help Request Posts</p>
