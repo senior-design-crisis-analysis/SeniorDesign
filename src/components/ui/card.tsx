@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
-=======
-import * as React from "react"
-
-import { cn } from "@/lib/utils"
->>>>>>> ada522895db17382558e1210d4ac6962414f9051
+import { cn } from "../../lib/utils.ts";
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -18,11 +12,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-<<<<<<< HEAD
   );
-=======
-  )
->>>>>>> ada522895db17382558e1210d4ac6962414f9051
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
@@ -35,11 +25,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-<<<<<<< HEAD
   );
-=======
-  )
->>>>>>> ada522895db17382558e1210d4ac6962414f9051
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
@@ -49,11 +35,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("leading-none font-semibold", className)}
       {...props}
     />
-<<<<<<< HEAD
   );
-=======
-  )
->>>>>>> ada522895db17382558e1210d4ac6962414f9051
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
@@ -63,11 +45,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
-<<<<<<< HEAD
   );
-=======
-  )
->>>>>>> ada522895db17382558e1210d4ac6962414f9051
 }
 
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {
@@ -80,11 +58,7 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-<<<<<<< HEAD
   );
-=======
-  )
->>>>>>> ada522895db17382558e1210d4ac6962414f9051
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
@@ -94,11 +68,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("px-6", className)}
       {...props}
     />
-<<<<<<< HEAD
   );
-=======
-  )
->>>>>>> ada522895db17382558e1210d4ac6962414f9051
 }
 
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
@@ -108,11 +78,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
       {...props}
     />
-<<<<<<< HEAD
   );
-=======
-  )
->>>>>>> ada522895db17382558e1210d4ac6962414f9051
 }
 
 export {
@@ -123,8 +89,4 @@ export {
   CardAction,
   CardDescription,
   CardContent,
-<<<<<<< HEAD
 };
-=======
-}
->>>>>>> ada522895db17382558e1210d4ac6962414f9051

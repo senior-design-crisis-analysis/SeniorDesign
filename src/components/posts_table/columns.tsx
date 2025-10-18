@@ -1,9 +1,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
+import { Badge } from "../ui/badge";
 import { ArrowUpDown, AlertCircle } from "lucide-react";
 import type { TableSkeet } from "./tableskeet_type";
+import { tr } from "date-fns/locale";
 
 export const columns: ColumnDef<TableSkeet>[] = [
   {
@@ -61,12 +62,13 @@ export const columns: ColumnDef<TableSkeet>[] = [
         flood: "Flood",
         fire: "Fire",
         earthquake: "Earthquake",
+        extreme_heat: "Extreme Heat",
         hurricane: "Hurricane",
         tornado: "Tornado",
+        tropical_storm: "Tropical Storm",
         shooting: "Shooting",
         auto_accident: "Auto Accident",
         severe_storm: "Severe Storm",
-        storm: "Storm",
         other: "Other",
       };
 

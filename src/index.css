@@ -1,9 +1,8 @@
-/* stylelint-disable at-rule-no-unknown */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -48,7 +47,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(98.4% 0.003 247.858);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -79,7 +78,6 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
-  --font-family: "Inter";
 }
 
 .dark {
@@ -122,9 +120,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-family);
-    font-size: 14px;
-    line-height: 1.5;
   }
 }
 

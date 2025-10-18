@@ -33,6 +33,7 @@ import { Switch } from "./components/ui/switch";
 import HelpRequestPost from "./components/HelpRequestPost";
 import "./App.css";
 import supabase from "./supabase-client";
+import TableSkeetTable from "./components/posts_table/ExtractedInfoTable";
 
 type Row = {
   uri: string;
@@ -115,7 +116,7 @@ function App() {
     );
 
   return (
-    <>
+    <div>
       <Card className="w-full container DisasterPostsintheUnitedStates">
         <CardHeader>
           <CardTitle className="text-left">
@@ -183,7 +184,7 @@ function App() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="all">All Severity Levels</SelectItem>
+                    <SelectItem value="all">All Severities</SelectItem>
                     <SelectItem value="high">High</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="low">Low</SelectItem>
@@ -258,7 +259,8 @@ function App() {
           </Card>
         </CardContent>
       </Card>
-    </>
+      <TableSkeetTable />
+    </div>
   );
 }
 

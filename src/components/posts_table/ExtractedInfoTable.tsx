@@ -16,8 +16,8 @@ import type {
   VisibilityState,
 } from "@tanstack/react-table";
 import supabase from "@/supabase-client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import {
   Table,
   TableBody,
@@ -33,9 +33,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Switch } from "../ui/switch";
+import { Label } from "../ui/label";
 import type { DateRange } from "react-day-picker";
 import {
   Popover,
@@ -120,7 +119,7 @@ export default function TableSkeetTable() {
   }, [dateRange, table]);
 
   return (
-    <div className="bg-slate-50 w-full overflow-x-auto p-6">
+    <div className="bg-slate-50 w-full overflow-x-auto py-6">
       <div
         className="flex"
         style={{ color: "#020617", fontSize: "24px", fontWeight: 500 }}
@@ -283,14 +282,15 @@ export default function TableSkeetTable() {
                 All Disasters
               </SelectItem>
               {[
-                "flood",
                 "fire",
+                "flood",
                 "earthquake",
+                "extreme_heat",
                 "hurricane",
                 "tornado",
+                "tropical_storm",
                 "shooting",
                 "auto_accident",
-                "storm",
                 "severe_storm",
                 "other",
               ].map((type) => (
