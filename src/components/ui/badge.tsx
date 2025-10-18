@@ -1,3 +1,25 @@
+<<<<<<< HEAD
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+
+import { cn } from "@/lib/utils";
+
+const badgeVariants = cva(
+  "items-center justify-center rounded-full text-[12px] font-medium w-fit h-[22px]",
+  {
+    variants: {
+      variant: {
+        disaster: "rounded-full text-black",
+        help_alert: "rounded-full text-white",
+      },
+    },
+    defaultVariants: {
+      variant: "disaster",
+    },
+  }
+);
+=======
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -24,6 +46,7 @@ const badgeVariants = cva(
     },
   }
 )
+>>>>>>> ada522895db17382558e1210d4ac6962414f9051
 
 function Badge({
   className,
@@ -32,7 +55,11 @@ function Badge({
   ...props
 }: React.ComponentProps<"span"> &
   VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+<<<<<<< HEAD
+  const Comp = asChild ? Slot : "span";
+=======
   const Comp = asChild ? Slot : "span"
+>>>>>>> ada522895db17382558e1210d4ac6962414f9051
 
   return (
     <Comp
@@ -40,7 +67,14 @@ function Badge({
       className={cn(badgeVariants({ variant }), className)}
       {...props}
     />
+<<<<<<< HEAD
+  );
+}
+
+export { Badge, badgeVariants };
+=======
   )
 }
 
 export { Badge, badgeVariants }
+>>>>>>> ada522895db17382558e1210d4ac6962414f9051
