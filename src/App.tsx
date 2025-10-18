@@ -35,7 +35,7 @@ import { Label } from './components/ui/label'
 import { Switch } from './components/ui/switch'
 import HelpRequestPost from './components/HelpRequestPost'
 import './App.css'
-//import supabase from './supabase-client'
+import supabase from './supabase-client'
 
   type Row = {
     uri: string;
