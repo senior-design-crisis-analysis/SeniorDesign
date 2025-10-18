@@ -9,7 +9,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "strict": true,                        
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "noImplicitOverride": true,

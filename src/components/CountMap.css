@@ -1,0 +1,11 @@
+.CountMap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    height: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--slate-200, #E2E8F0);
+    background: url(<path-to-image>) lightgray 50% / cover no-repeat;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}

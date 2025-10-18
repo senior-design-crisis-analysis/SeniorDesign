@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+"use client"
+
+>>>>>>> ada522895db17382558e1210d4ac6962414f9051
 import * as React from "react"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 
