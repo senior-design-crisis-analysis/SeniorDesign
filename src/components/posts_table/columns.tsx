@@ -4,7 +4,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Badge } from "../ui/badge";
 import { ArrowUpDown, AlertCircle } from "lucide-react";
 import type { TableSkeet } from "./tableskeet_type";
-import { tr } from "date-fns/locale";
+//import { tr } from "date-fns/locale";
 
 export const columns: ColumnDef<TableSkeet>[] = [
   {
