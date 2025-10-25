@@ -7,7 +7,7 @@ import type { Feature, Point, GeoJsonProperties } from 'geojson';
 type Row = {
   longitude: number | null;
   latitude: number | null;
-  created_at: string | null;
+  indexed_at: string | null;
 };
 
 type Props = {
@@ -44,7 +44,7 @@ const CountMap = ({ posts }: Props) => {
         )
         .map(p => ({
           type: 'Feature' as const,
-          properties: { timestamp: p.created_at },
+          properties: { timestamp: p.indexed_at },
           geometry: {
             type: 'Point' as const,
             coordinates: [p.longitude, p.latitude],

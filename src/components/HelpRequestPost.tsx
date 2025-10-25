@@ -27,10 +27,10 @@ const HelpRequestPost = ({ data }: Props) => {
         <div className="badges">
           <Badge
             className={
-              "rounded-full px-1 py-1 border-2 capitalize flex items-center justify-center"
+              "rounded-full px-3 py-1 border-2 capitalize flex items-center justify-center whitespace-nowrap overflow-hidden text-ellipsis"
             }
           >
-            {category}
+            {category.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
           </Badge>
           <Badge
             className={
