@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# Tweet Analysis for Crisis and Disaster - 77 - Sarac-T2
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Finding a singular source of information about an ongoing event can be difficult with the various content and forms of data available on the internet. This issue is only exacerbated during times of crises and disasters as accurate and up-to-date information is necessary. While there are articles and blurbs being pumped out constantly, these must all be found separately and compiled on one’s own to gain the full idea of the current happenings. With the rise of social media, there is yet another stream of information. Unlike traditional media, social media is accessible by anyone and allows for instant updates, which increases the amount of information and misinformation available. Due to the high volume of posts on social media platforms, time-sensitive details are easily overlooked. There is no singular source that acts as a central hub to provide accurate information with real-time updates to aid with fast relief efforts and awareness.
 
-Currently, two official plugins are available:
+## Project Objectives 🎯
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Our main goal is to create a centralized dashboard that presents real-time information about current disasters with information and statistics such as severity levels. We aim to:
+- ✅**Use an LLM to Analyze Data:** Use the Bluesky API to pull live data that will be processed through a fine-tuned LLM to identify disasters and extract their key details.
+- 🚧**Compile and Present Real-Time Data:** Utilize the LLM to label the extracted crisis details, allowing them to be properly presented with the necessary context and analysis.
+- 🚧**Create a Dashboard:** Design an informational dashboard with a user-friendly interface that displays accurate updates, notifications, and information via various data visualizations such as graphs, tables, maps, and charts.
+- 🚧**Increase Accessibility and Efficiency:** Provide a platform that acts as a centralized source of all necessary information, cutting down on research time and allowing for faster reaction time from action groups such as first responders.
 
-## React Compiler
+## Tech Stack 📚
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Frontend 🎨:
+  - React.JS (Typescript)
+  - Vite
+  - Tailwind CSS
+  - Shadcn UI
+- Backend 👾:
+  - Supabase
+- APIs ☁️:
+  - Bluesky API
+- LLM Providers 🤖:
+  - Groq
+  - Mistral AI
+  - Moonshot AI
+  - Deepseek
+  - OpenAI
+  - Anthropic
+  - Gemini
+- Hosting 🥂:
+  - Vercel
+- Miscellaneous 🥗:
+  - Figma
+  - Git
+  - Jira
+  - Postman
+  - Kaggle
 
-## Expanding the ESLint configuration
+## Additional Resources ✒️
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [UTDallas - CS Project - Prof. Sarac](https://docs.google.com/presentation/d/1VJzC0SVWgJlZLcUqyHpKL24TpqzHUFW5/edit?usp=sharing&ouid=102259083478228356912&rtpof=true&sd=true)
+- [Our World In Data](https://ourworldindata.org/natural-disasters#all-charts)
+- [Git cheat sheet](https://education.github.com/git-cheat-sheet-education.pdf)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## The Team 🌟
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- <b><i> Fatima Carmona👾 </i></b>
+- <b><i> Jaszmine DeFranco🤖 </i></b>
+- <b><i> Medha Kotra👾 </i></b>
+- <b><i> Oviya Selvakumar🎨 </i></b>
+- <b><i> Sanjana Kotha🤖 </i></b>
+- <b><i> Susan Zhang🎨 </i></b>
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- <b> Selim Sarac </b> - Project Sponsor & Faculty Mentor
+- <b> Eswardeep Pujala </b> - Teaching Assistant
