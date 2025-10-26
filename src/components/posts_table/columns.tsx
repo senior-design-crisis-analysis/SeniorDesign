@@ -4,7 +4,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Badge } from "../ui/badge";
 import { ArrowUpDown, AlertCircle } from "lucide-react";
 import type { TableSkeet } from "./tableskeet_type";
-import { tr } from "date-fns/locale";
+import "./../../App.css";
 
 export const columns: ColumnDef<TableSkeet>[] = [
   {
@@ -31,7 +31,13 @@ export const columns: ColumnDef<TableSkeet>[] = [
   {
     accessorKey: "original_text",
     header: () => (
-      <span style={{ color: "#64748B", fontWeight: 400, fontSize: "14px" }}>
+      <span
+        style={{
+          color: "#64748B",
+          fontWeight: 400,
+          fontSize: "14px",
+        }}
+      >
         Post Text
       </span>
     ),
@@ -40,6 +46,7 @@ export const columns: ColumnDef<TableSkeet>[] = [
         {row.getValue("original_text")}
       </div>
     ),
+    size: 400,
   },
   {
     accessorKey: "disaster_type",
@@ -74,7 +81,7 @@ export const columns: ColumnDef<TableSkeet>[] = [
 
       return (
         <Badge className={"rounded-full px-2 py-1 border-2"}>
-          {mapDisaster[disaster] || disaster}
+          {mapDisaster[disaster] || "Other"}
         </Badge>
       );
     },
@@ -213,7 +220,7 @@ export const columns: ColumnDef<TableSkeet>[] = [
           style={
             row.getValue("help_req")
               ? { backgroundColor: "red" }
-              : { backgroundColor: "gray" }
+              : { backgroundColor: "#C0C0C0" }
           }
         >
           {row.getValue("help_req") ? (
@@ -225,7 +232,7 @@ export const columns: ColumnDef<TableSkeet>[] = [
           ) : (
             <AlertCircle
               color="white"
-              fill="gray"
+              fill="#C0C0C0"
               className="w-[22px] h-[22px]"
             />
           )}

@@ -115,8 +115,23 @@ function App() {
       </Alert>
     );
 
+  const formatDate = (date: Date) => {
+    if (!date) return "";
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   return (
     <div>
+      <div
+        className="text-left px-2 py-2"
+        style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
+      >
+        Disaster Post Analysis Dashboard
+      </div>
       <Card className="w-full container DisasterPostsintheUnitedStates">
         <CardHeader>
           <CardTitle className="text-left">
@@ -141,21 +156,24 @@ function App() {
                     <Button
                       variant="outline"
                       id="date"
-                      className="w-48 justify-between font-normal"
+                      className="bg-white w-56 justify-between font-normal"
                     >
                       {dateRange?.from && dateRange?.to
-                        ? `${dateRange.from.toLocaleDateString()} - ${dateRange.to.toLocaleDateString()}`
+                        ? `${formatDate(dateRange.from)} - ${formatDate(
+                            dateRange.to
+                          )}`
                         : "Select date"}
-                      <ChevronDownIcon />
+                      <ChevronDownIcon className="text-slate-400" />
                     </Button>
                   </PopoverTrigger>
+
                   <PopoverContent
                     className="w-auto overflow-hidden p-0"
                     align="start"
                   >
                     <Calendar
                       mode="range"
-                      defaultMonth={dateRange?.from} // The month displayed initially
+                      defaultMonth={dateRange?.from}
                       selected={dateRange}
                       onSelect={setDateRange}
                       numberOfMonths={1}
@@ -164,22 +182,13 @@ function App() {
                     />
                   </PopoverContent>
                 </Popover>
-
-                {/*<Calendar
-                  mode="range"
-                  defaultMonth={dateRange?.from} // The month displayed initially
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={1}
-                  className="rounded-lg border shadow-sm"
-                />*/}
               </div>
 
               <Select
                 value={severity ?? "all"}
                 onValueChange={(v) => setSeverity(v === "all" ? undefined : v)}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[170px]">
                   <SelectValue placeholder="Severity Level" />
                 </SelectTrigger>
                 <SelectContent>
@@ -196,7 +205,7 @@ function App() {
                 value={disaster ?? "all"}
                 onValueChange={(v) => setDisaster(v === "all" ? undefined : v)}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[170px]">
                   <SelectValue placeholder="All Disasters" />
                 </SelectTrigger>
                 <SelectContent>
@@ -230,10 +239,10 @@ function App() {
           <CountMap posts={filteredPosts} />
           <Card className="w-full max-w-sm HelpRequestPosts">
             <div className="card-header">
-              <p className="card-header-text">Help Request Posts</p>
+              <p className="card-header-text">At a Glance</p>
             </div>
-            <div className="frame-clip-content max-h-[473px] w-[377px] overflow-y-auto overflow-x-hidden scrollbar-none">
-              <div className="frame-posts">
+            <div className="frame-clip-content max-h-[473px] w-full overflow-y-auto scrollbar-none">
+              <div className="frame-posts flex flex-col w-full">
                 {filteredPosts.length === 0 ? (
                   <p className="handle-text text-center">
                     No help requests in the selected period.

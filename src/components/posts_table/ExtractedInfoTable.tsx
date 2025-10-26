@@ -46,6 +46,7 @@ import { Search } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import type { TableSkeet } from "@/components/posts_table/tableskeet_type";
 import { columns } from "./columns";
+import "./../../App.css";
 //end imports
 
 export default function TableSkeetTable() {
@@ -119,17 +120,15 @@ export default function TableSkeetTable() {
   }, [dateRange, table]);
 
   return (
-    <div className="bg-slate-50 w-full overflow-x-auto py-6">
-      <div
-        className="flex"
-        style={{ color: "#020617", fontSize: "24px", fontWeight: 500 }}
-      >
-        Post Table
-      </div>
-      <div className="flex items-center py-4 gap-2 flex-wrap justify-between">
+    <div className="bg-slate-50 w-full overflow-x-auto py-6 font-inter font-normal text-sm text-[#020617]">
+      {/* Header */}
+      <div className="flex text-xl font-medium px-2">All Activity</div>
+      {/* Filters */}
+      <div className="flex items-center py-2 gap-2 flex-wrap justify-between">
+        {/* Search Input */}
         <div className="relative w-full max-w-sm">
-          <Search //filter by post text
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
             size={16}
           />
           <Input
@@ -140,20 +139,16 @@ export default function TableSkeetTable() {
                 .getColumn("original_text")
                 ?.setFilterValue(event.target.value)
             }
-            className="bg-white pl-10  max-h-[40px] text-[#64748B]"
-            style={{ fontSize: "14px", fontWeight: 400 }}
+            className="bg-white pl-10 h-10 text-slate-700"
           />
         </div>
-        <div
-          className="flex gap-2 center" //filter by date range
-        >
+        {/* Date Range */}
+        <div className="flex gap-2 items-center">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                id="date"
-                className="bg-white w-[240px] justify-between font-normal h-[40px]"
-                style={{ fontSize: "14px", fontWeight: 400 }}
+                className="bg-white w-[320px] justify-between h-10"
               >
                 {dateRange?.from && dateRange?.to
                   ? `${dateRange.from
@@ -169,67 +164,42 @@ export default function TableSkeetTable() {
                         year: "numeric",
                       })
                       .replace(",", ".")}`
-                  : dateRange?.from
-                  ? dateRange.from
-                      .toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                      .replace(",", ".")
                   : "Select date"}
-                <ChevronDownIcon className="h-4 w-4" />
+                <ChevronDownIcon className="h-4 w-4 text-slate-500" />
               </Button>
             </PopoverTrigger>
             <PopoverContent
               className="bg-white w-auto overflow-hidden p-0"
               align="start"
-              style={{ fontSize: "14px", fontWeight: 400 }}
             >
-              <Calendar //popdown calendar
+              <Calendar
                 mode="range"
                 defaultMonth={dateRange?.from}
                 selected={dateRange}
                 onSelect={setDateRange}
                 numberOfMonths={1}
                 className="bg-white rounded-lg border shadow-sm"
-                style={{ fontSize: "14px", fontWeight: 400 }}
                 captionLayout="dropdown"
-                hideNavigation={true}
+                hideNavigation
               />
             </PopoverContent>
           </Popover>
-
-          <Select //filter by severity level
+          {/* Severities */}
+          <Select
             value={
               (table.getColumn("severity_level")?.getFilterValue() as string) ||
               "all"
             }
             onValueChange={(value) => {
               const column = table.getColumn("severity_level");
-              if (value === "all") {
-                column?.setFilterValue(undefined);
-              } else {
-                column?.setFilterValue(value);
-              }
+              column?.setFilterValue(value === "all" ? undefined : value);
             }}
           >
-            <SelectTrigger
-              className="w-[140px] max-h-[40px] bg-white text-[#020617] font-normal text-sm"
-              style={{ color: "#020617", fontWeight: 400, fontSize: "14px" }}
-            >
+            <SelectTrigger className="w-[180px] h-10 bg-white">
               <SelectValue placeholder="Severity" />
             </SelectTrigger>
             <SelectContent className="bg-white shadow-md rounded-md">
-              <SelectItem
-                value="all"
-                className="hover:bg-slate-100"
-                style={{
-                  color: "#64748b",
-                  fontWeight: 400,
-                  fontSize: "14px",
-                }}
-              >
+              <SelectItem value="all" className="hover:bg-slate-100">
                 All Severities
               </SelectItem>
               {["low", "medium", "high"].map((level) => (
@@ -237,48 +207,28 @@ export default function TableSkeetTable() {
                   key={level}
                   value={level}
                   className="hover:bg-slate-100"
-                  style={{
-                    color: "#020617",
-                    fontWeight: 400,
-                    fontSize: "14px",
-                  }}
                 >
                   {level.charAt(0).toUpperCase() + level.slice(1)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-
-          <Select //filter by disaster type
+          {/* Disasters */}
+          <Select
             value={
               (table.getColumn("disaster_type")?.getFilterValue() as string) ||
               "all"
             }
             onValueChange={(value) => {
               const column = table.getColumn("disaster_type");
-              if (value === "all") {
-                column?.setFilterValue(undefined);
-              } else {
-                column?.setFilterValue(value);
-              }
+              column?.setFilterValue(value === "all" ? undefined : value);
             }}
           >
-            <SelectTrigger
-              className="w-[160px] max-h-[40px] bg-white text-[#020617] font-normal text-sm"
-              style={{ color: "#020617", fontWeight: 400, fontSize: "14px" }}
-            >
+            <SelectTrigger className="w-[160px] h-10 bg-white">
               <SelectValue placeholder="Disaster" />
             </SelectTrigger>
             <SelectContent className="bg-white shadow-md rounded-md">
-              <SelectItem
-                value="all"
-                className="hover:bg-slate-100"
-                style={{
-                  color: "#64748b",
-                  fontWeight: 400,
-                  fontSize: "14px",
-                }}
-              >
+              <SelectItem value="all" className="hover:bg-slate-100">
                 All Disasters
               </SelectItem>
               {[
@@ -298,11 +248,6 @@ export default function TableSkeetTable() {
                   key={type}
                   value={type}
                   className="hover:bg-slate-100"
-                  style={{
-                    color: "#020617",
-                    fontWeight: 400,
-                    fontSize: "14px",
-                  }}
                 >
                   {type
                     .replace("_", " ")
@@ -313,70 +258,45 @@ export default function TableSkeetTable() {
           </Select>
 
           <div className="flex items-center space-x-2 ml-2">
-            <Switch //filter by toggling for help requests
+            <Switch
               id="help-toggle"
               checked={helpOnly}
               onCheckedChange={setHelpOnly}
-              style={{ color: "#64748B" }}
             />
-            <Label
-              htmlFor="help-toggle"
-              className="text-[#64748B]"
-              style={{ fontSize: "14px", fontWeight: 400, color: "#020617" }}
-            >
+            <Label htmlFor="help-toggle" className="text-slate-700">
               Help Requests Only
             </Label>
           </div>
         </div>
       </div>
-
-      <div
-        className="bg-white overflow-hidden rounded-md border"
-        style={{ color: "#020617", fontWeight: 300, fontSize: "14px" }}
-      >
-        {loading ? ( //loading state
-          <div
-            className="p-4 text-center text-muted-foreground"
-            style={{
-              fontSize: "14px",
-              fontWeight: 400,
-              color: "#64748B",
-            }}
-          >
-            Loading data...
-          </div>
+      {/* Table */}
+      <div className="bg-white overflow-hidden rounded-md border text-slate-800">
+        {loading ? (
+          <div className="p-4 text-center text-slate-500">Loading data...</div>
         ) : (
           <Table>
             <TableHeader>
-              {table.getHeaderGroups().map(
-                (
-                  headerGroup //display table after loading
-                ) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead
-                        key={header.id}
-                        className={
-                          header.column.id === "original_text"
-                            ? "text-left"
-                            : "text-center whitespace-nowrap"
-                        }
-                        style={{
-                          width:
-                            header.column.id === "select" ? "40px" : undefined,
-                        }}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                )
-              )}
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className={`${
+                        header.column.id === "original_text"
+                          ? "text-left"
+                          : "text-center whitespace-nowrap"
+                      }`}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows?.length ? (
@@ -388,15 +308,11 @@ export default function TableSkeetTable() {
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className={
+                        className={`${
                           cell.column.id === "original_text"
-                            ? "whitespace-normal break-words text-left"
+                            ? "text-left whitespace-normal break-words"
                             : "text-center whitespace-nowrap"
-                        }
-                        style={{
-                          fontSize: "14px",
-                          color: "#09090b",
-                        }}
+                        }`}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -410,12 +326,7 @@ export default function TableSkeetTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 400,
-                      color: "#09090b",
-                    }}
+                    className="h-24 text-center text-slate-700"
                   >
                     No results.
                   </TableCell>
@@ -425,31 +336,18 @@ export default function TableSkeetTable() {
           </Table>
         )}
       </div>
-
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div
-          className="text-muted-foreground flex-1 text-sm"
-          style={{
-            fontSize: "14px",
-            fontWeight: 400,
-            color: "#64748B",
-          }}
-        >
+      {/* Footer */}
+      <div className="flex justify-between space-x-2 py-4">
+        <div className="text-slate-500">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
-        <div className="space-x-2">
-          <Button //pagination buttons
+        <div className="space-x-2 justify-end">
+          <Button
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="h-[36px]"
-            style={{
-              fontSize: "14px",
-              fontWeight: 400,
-              color: "#64748B",
-            }}
           >
             Previous
           </Button>
@@ -458,12 +356,6 @@ export default function TableSkeetTable() {
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="h-[36px]"
-            style={{
-              fontSize: "14px",
-              fontWeight: 400,
-              color: "#64748B",
-            }}
           >
             Next
           </Button>
