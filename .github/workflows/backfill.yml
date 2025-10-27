@@ -1,6 +1,9 @@
-name: Daily Backfill Debug
+name: Daily Backfill
 
 on:
+  schedule:
+    - cron: '0 8 * * *'  # 8:00 AM UTC
+    - cron: '0 20 * * *' # 8:00 PM UTC
   workflow_dispatch:
 
 jobs:
@@ -11,29 +14,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: List all files to see structure
-      run: find . -name "*.ts" -type f | head -20
-    
-    - name: Check if backfill exists
-      run: |
-        echo "Looking for backfill.ts..."
-        find . -name "backfill.ts" -type f
-        echo "Checking src/bluesky_scripts directory..."
-        ls -la src/bluesky_scripts/ || echo "Directory not found"
-    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'  # Updated to Node 20 to fix the warning
+        cache: 'npm'
     
     - name: Install dependencies
       run: npm install
     
-    - name: Try to run backfill
+    - name: Run backfill script
       run: npx tsx src/bluesky_scripts/backfill.ts
       env:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.SUPABASE_SERIVE_ROLE_KEY }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}  # Using the exact secret name you have
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY }}
         BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
         BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-        
+        # Add all other env vars that your backfill script uses
