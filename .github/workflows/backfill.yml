@@ -1,4 +1,4 @@
-name: Daily Backfill
+name: Daily Backfill Debug
 
 on:
   workflow_dispatch:
@@ -11,11 +11,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: List files to see structure
-      run: ls -la
+    - name: List all files to see structure
+      run: find . -name "*.ts" -type f | head -20
     
-    - name: Check if backfill script exists
-      run: ls -la scripts/
+    - name: Check if backfill exists
+      run: |
+        echo "Looking for backfill.ts..."
+        find . -name "backfill.ts" -type f
+        echo "Checking src/bluesky_scripts directory..."
+        ls -la src/bluesky_scripts/ || echo "Directory not found"
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -25,11 +29,8 @@ jobs:
     - name: Install dependencies
       run: npm install
     
-    - name: Check package.json for tsx
-      run: cat package.json | grep tsx
-    
     - name: Try to run backfill
-      run: npx tsx scripts/backfill.ts
+      run: npx tsx src/bluesky_scripts/backfill.ts
       env:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.SUPABASE_SERIVE_ROLE_KEY }}
