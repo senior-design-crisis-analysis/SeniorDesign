@@ -1,24 +1,80 @@
+// ----- top of src/bluesky_scripts/backfill.ts -----
 import { BskyAgent } from '@atproto/api';
 import { createClient } from '@supabase/supabase-js';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-// Skip dotenv entirely — rely on GitHub Actions env vars
-console.log('Environment check in backfill.ts:');
-console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
-console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
-console.log('BLUESKY_USERNAME:', process.env.BLUESKY_USERNAME ? 'SET' : 'NOT SET');
-
-// ---------------- Supabase Setup ----------------
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error('Missing Supabase environment variables');
+// Helper: prefer long service role var, but accept others
+function findSupabaseKey(): string | undefined {
+  return (
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.SUPABASE_KEY ??
+    process.env.VITE_SUPABASE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY
+  );
 }
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Try to ensure envs are loaded. If missing, attempt to load .env from repo root as a fallback.
+async function ensureEnvLoaded() {
+  const supabaseKeyBefore = findSupabaseKey();
+  if (process.env.SUPABASE_URL && supabaseKeyBefore) return;
+
+  // Attempt to load from repo root .env (fallback only)
+  try {
+    // compute repo-root .env path relative to this file
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const rootEnvPath = path.resolve(__dirname, '../../.env');
+
+    // Dynamically import dotenv to avoid forcing it in environments where not needed
+    // (we're in ESM)
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const dotenv = await import('dotenv');
+    const res = dotenv.config({ path: rootEnvPath });
+    console.log('[DEBUG] dotenv.config result:', res.parsed ? 'LOADED' : 'NOT LOADED');
+    console.log('[DEBUG] attempted .env path:', rootEnvPath);
+  } catch (err) {
+    console.log('[DEBUG] dotenv load attempt failed (maybe not installed):', (err as Error).message);
+  }
+}
+
+// Run the loader synchronously-ish before client creation
+await ensureEnvLoaded();
+
+// Now pick the key again
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = findSupabaseKey();
+
+// Debug output (SAFE): show which env names exist (not printing secret values)
+const candidateNames = [
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'SUPABASE_KEY',
+  'VITE_SUPABASE_KEY',
+  'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY',
+  'SUPABASE_URL',
+  'BLUESKY_USERNAME',
+  'BLUESKY_PASSWORD',
+];
+
+const present = candidateNames.filter((n) => !!process.env[n]);
+console.log('[DEBUG] Present env variable NAMES:', present);
+console.log('[DEBUG] SUPABASE_URL present?', SUPABASE_URL ? 'YES' : 'NO');
+console.log('[DEBUG] SUPABASE_KEY detected?', SUPABASE_KEY ? `YES (len=${SUPABASE_KEY.length})` : 'NO');
+
+// If still missing, fail with a clear message and helpful hints
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('ERROR: Missing Supabase env values. Required: SUPABASE_URL and one of: SUPABASE_SERVICE_ROLE_KEY, SUPABASE_KEY, VITE_SUPABASE_KEY, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY');
+  console.error('Present env names:', present.join(', ') || '(none)');
+  // throw to stop startup (Supabase client would have thrown the generic error anyway)
+  throw new Error('Supabase environment variables are not available in this runtime.');
+}
+
+// ---------------- Supabase Setup ----------------
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ---------------- Bluesky Agent ----------------
 const agent = new BskyAgent({ service: 'https://bsky.social' });
+
 
 
 // ---------------- Login Function ----------------
