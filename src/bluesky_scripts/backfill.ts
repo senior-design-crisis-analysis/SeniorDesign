@@ -29,7 +29,9 @@ async function ensureEnvLoaded() {
     // Dynamically import dotenv to avoid forcing it in environments where not needed
     // (we're in ESM)
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const dotenv = await import('dotenv');
+  if (process.env.NODE_ENV !== 'production') {
+      await import('dotenv/config');
+      }
     const res = dotenv.config({ path: rootEnvPath });
     console.log('[DEBUG] dotenv.config result:', res.parsed ? 'LOADED' : 'NOT LOADED');
     console.log('[DEBUG] attempted .env path:', rootEnvPath);
