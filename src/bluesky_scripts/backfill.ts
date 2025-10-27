@@ -1,8 +1,19 @@
-//src/bluesky_scripts/backfill.ts
-import { BskyAgent } from '@atproto/api';
+/import { BskyAgent } from '@atproto/api';
 import { createClient } from '@supabase/supabase-js';
+import { fileURLToPath } from 'url';
+import path from 'path';
 import dotenv from 'dotenv';
-dotenv.config();
+
+// ✅ Load .env explicitly from the project root (2 directories up)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootEnvPath = path.resolve(__dirname, '../../.env');
+dotenv.config({ path: rootEnvPath });
+
+console.log('[DEBUG] Loaded .env from:', rootEnvPath);
+console.log('[DEBUG] SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('[DEBUG] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
+console.log('[DEBUG] BLUESKY_USERNAME:', process.env.BLUESKY_USERNAME ? 'SET' : 'NOT SET');
 
 // ---------------- Supabase Setup ----------------
 const supabase = createClient(
@@ -12,6 +23,7 @@ const supabase = createClient(
 
 // ---------------- Bluesky Agent ----------------
 const agent = new BskyAgent({ service: 'https://bsky.social' });
+
 
 // ---------------- Login Function ----------------
 async function login() {
