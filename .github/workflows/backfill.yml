@@ -26,12 +26,10 @@ jobs:
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY }}
           BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+          NODE_ENV: production
         run: |
-          echo "🔍 Environment check..."
-          echo "SUPABASE_URL is ${SUPABASE_URL:+set}"
-          echo "SUPABASE_SERVICE_ROLE_KEY is ${SUPABASE_SERVICE_ROLE_KEY:+set}"
-          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY is ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY:+set}"
-          echo "BLUESKY_USERNAME is ${BLUESKY_USERNAME:+set}"
-
-          # Run the actual script without relying on dotenv
-          npx tsx src/bluesky_scripts/backfill.ts
+          echo "🔍 Checking env variables..."
+          env | grep SUPABASE || true
+          echo "✅ Launching script..."
+          node -e "console.log('SUPABASE_URL:', !!process.env.SUPABASE_URL, 'SUPABASE_KEY:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)"
+          npx tsx --no-warnings src/bluesky_scripts/backfill.ts
