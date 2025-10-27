@@ -23,41 +23,30 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Create the .env file used by dotenv
-      - name: Create .env file
+      - name: Debug secrets before running
         run: |
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
-          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env
-          echo "BLUESKY_USERNAME=${{ secrets.BLUESKY_USERNAME }}" >> .env
-          echo "BLUESKY_PASSWORD=${{ secrets.BLUESKY_PASSWORD }}" >> .env
+          echo "SUPABASE_URL is ${SUPABASE_URL:+SET}"
+          echo "SUPABASE_SERVICE_ROLE_KEY is ${SUPABASE_SERVICE_ROLE_KEY:+SET}"
+          echo "BLUESKY_USERNAME is ${BLUESKY_USERNAME:+SET}"
+          echo "BLUESKY_PASSWORD is ${BLUESKY_PASSWORD:+SET}"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
 
-      # Sanity check: print whether env vars are set
-      - name: Check environment variables
+      - name: Run backfill script (no dotenv)
         run: |
           node -e "
-            console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'SET' : 'NOT SET');
-            console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
-            console.log('BLUESKY_USERNAME:', process.env.BLUESKY_USERNAME ? 'SET' : 'NOT SET');
+            console.log('Runtime check:')
+            console.log('SUPABASE_URL:', process.env.SUPABASE_URL)
+            console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET')
+            console.log('BLUESKY_USERNAME:', process.env.BLUESKY_USERNAME ? 'SET' : 'NOT SET')
           "
+          npx tsx src/bluesky_scripts/backfill.ts
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
 
-      - name: Debug dotenv loading
-        run: |
-            echo "Contents of .env file:"
-            cat .env
-            echo "Node sees these values:"
-            npx tsx -e "import 'dotenv/config'; console.log(process.env.SUPABASE_URL ? 'URL SET' : 'URL NOT SET'); console.log(process.env.SUPABASE_SERVICE_ROLE_KEY ? 'KEY SET' : 'KEY NOT SET');"
-  
-
-      # Actually run the script
-      - name: Run backfill script
-        run: npx tsx src/bluesky_scripts/backfill.ts
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
