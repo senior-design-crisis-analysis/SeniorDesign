@@ -2,10 +2,9 @@ name: Daily Backfill
 
 on:
   schedule:
-    # Run at 8 AM and 8 PM UTC (adjust times as needed)
     - cron: '0 8 * * *'  # 8:00 AM UTC
     - cron: '0 20 * * *' # 8:00 PM UTC
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   backfill:
@@ -14,6 +13,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    
+    - name: Debug - List files
+      run: ls -la
+    
+    - name: Debug - Check prisma folder
+      run: ls -la prisma/
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -25,10 +30,9 @@ jobs:
       run: npm install
     
     - name: Generate Prisma client
-      run: npx prisma generate
+      run: npx prisma generate --schema=./prisma/schema.prisma
     
     - name: Run backfill script
       run: npx tsx scripts/backfill.ts
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        # Add other environment variables your script needs here
