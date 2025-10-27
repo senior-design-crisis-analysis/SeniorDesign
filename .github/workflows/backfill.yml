@@ -45,6 +45,14 @@ jobs:
           BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
 
+      - name: Debug dotenv loading
+        run: |
+            echo "Contents of .env file:"
+            cat .env
+            echo "Node sees these values:"
+            npx tsx -e "import 'dotenv/config'; console.log(process.env.SUPABASE_URL ? 'URL SET' : 'URL NOT SET'); console.log(process.env.SUPABASE_SERVICE_ROLE_KEY ? 'KEY SET' : 'KEY NOT SET');"
+  
+
       # Actually run the script
       - name: Run backfill script
         run: npx tsx src/bluesky_scripts/backfill.ts
