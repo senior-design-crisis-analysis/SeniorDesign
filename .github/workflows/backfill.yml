@@ -2,7 +2,7 @@ name: Run Backfill
 
 on:
   schedule:
-    - cron: '0 9 * * *' # 9am
+    - cron: '0 15 * * *' # 9am UTC time
   workflow_dispatch:
 
 jobs:
