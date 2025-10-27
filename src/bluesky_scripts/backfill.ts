@@ -220,7 +220,7 @@ async function backfillAll(username: string) {
         author: item.post.author.handle,
         indexedAt: item.post.indexedAt,
       }));
-
+      console.log("[DEBUG] Writing to table:", "be_posts_input");
       // Check which posts are new
       const { data: existing } = await supabase
         .from('be_posts_input')
@@ -230,6 +230,8 @@ async function backfillAll(username: string) {
       const existingUris = new Set(existing?.map(p => p.uri) || []);
       const newRows = rows.filter(r => !existingUris.has(r.uri));
 
+      
+      
       if (newRows.length > 0) {
         const { error } = await supabase
           .from('be_posts_input')
