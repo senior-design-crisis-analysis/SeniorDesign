@@ -7,8 +7,15 @@ jobs:
   backfill:
     runs-on: ubuntu-latest
 
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+      BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+      NODE_ENV: production
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -19,17 +26,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run backfill script
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY }}
-          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-          NODE_ENV: production
+      - name: Debug environment variables
         run: |
-          echo "🔍 Checking env variables..."
-          env | grep SUPABASE || true
-          echo "✅ Launching script..."
-          node -e "console.log('SUPABASE_URL:', !!process.env.SUPABASE_URL, 'SUPABASE_KEY:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)"
+          echo "🧪 Debugging environment vars..."
+          echo "SUPABASE_URL present: ${{ secrets.SUPABASE_URL != '' }}"
+          echo "SUPABASE_SERVICE_ROLE_KEY present: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}"
+          echo "BLUESKY_USERNAME present: ${{ secrets.BLUESKY_USERNAME != '' }}"
+          echo "BLUESKY_PASSWORD present: ${{ secrets.BLUESKY_PASSWORD != '' }}"
+
+      - name: Run backfill script
+        run: |
+          echo "🚀 Running backfill..."
           npx tsx --no-warnings src/bluesky_scripts/backfill.ts
