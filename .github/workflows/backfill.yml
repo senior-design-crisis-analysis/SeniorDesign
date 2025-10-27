@@ -23,21 +23,26 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Create .env file
+      - name: Create .env file in workspace
         run: |
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
-          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env
-          echo "BLUESKY_USERNAME=${{ secrets.BLUESKY_USERNAME }}" >> .env
-          echo "BLUESKY_PASSWORD=${{ secrets.BLUESKY_PASSWORD }}" >> .env
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > $GITHUB_WORKSPACE/.env
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> $GITHUB_WORKSPACE/.env
+          echo "BLUESKY_USERNAME=${{ secrets.BLUESKY_USERNAME }}" >> $GITHUB_WORKSPACE/.env
+          echo "BLUESKY_PASSWORD=${{ secrets.BLUESKY_PASSWORD }}" >> $GITHUB_WORKSPACE/.env
+          echo ".env created at: $GITHUB_WORKSPACE/.env"
+          ls -l $GITHUB_WORKSPACE/.env
 
-      - name: Debug .env contents (sanitized)
+      - name: Debug .env location and content
         run: |
-          echo "Checking that .env exists and contains the expected keys..."
-          grep -v "KEY" .env || true
-          echo "File size:"
-          ls -lh .env
+          echo "Current directory:"
+          pwd
+          echo "List files:"
+          ls -la
+          echo "Preview .env file (without secrets):"
+          cat .env | sed 's/=.*/=[REDACTED]/'
 
       - name: Run backfill script
+        working-directory: ${{ github.workspace }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -50,4 +55,5 @@ jobs:
             console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
             console.log('BLUESKY_USERNAME:', process.env.BLUESKY_USERNAME ? 'SET' : 'NOT SET');
           "
+          echo "Running backfill..."
           npx tsx src/bluesky_scripts/backfill.ts
