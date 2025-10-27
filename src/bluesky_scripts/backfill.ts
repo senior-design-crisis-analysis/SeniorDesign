@@ -4,6 +4,15 @@ import { createClient } from '@supabase/supabase-js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
+// only load dotenv locally, never in GitHub Actions
+if (process.env.NODE_ENV !== 'production') {
+  const dotenv = await import('dotenv');
+  dotenv.config();
+  console.log('[DEBUG] Loaded local .env file');
+} else {
+  console.log('[DEBUG] Skipping dotenv (production mode)');
+}
+
 // Helper: prefer long service role var, but accept others
 function findSupabaseKey(): string | undefined {
   return (
