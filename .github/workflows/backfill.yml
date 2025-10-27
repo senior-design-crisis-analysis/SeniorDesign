@@ -23,25 +23,12 @@ jobs:
     - name: Install dependencies
       run: npm install
     
-    - name: Debug environment variables
+    - name: Create .env file with correct variable names
       run: |
-        echo "Checking env vars before running script:"
-        node -e "
-        console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'SET' : 'NOT SET');
-        console.log('SUPABASE_KEY:', process.env.SUPABASE_KEY ? 'SET' : 'NOT SET');
-        console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
-        "
-      env:
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
-        BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+        echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+        echo "SUPABASE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env
+        echo "BLUESKY_USERNAME=${{ secrets.BLUESKY_USERNAME }}" >> .env
+        echo "BLUESKY_PASSWORD=${{ secrets.BLUESKY_PASSWORD }}" >> .env
     
     - name: Run backfill script
-      run: |
-        # Set the variables explicitly for the script
-        export SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
-        export SUPABASE_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
-        export BLUESKY_USERNAME="${{ secrets.BLUESKY_USERNAME }}"
-        export BLUESKY_PASSWORD="${{ secrets.BLUESKY_PASSWORD }}"
-        npx tsx src/bluesky_scripts/backfill.ts
+      run: npx tsx src/bluesky_scripts/backfill.ts
