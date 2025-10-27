@@ -223,7 +223,7 @@ async function backfillAll(username: string) {
 
       // Check which posts are new
       const { data: existing } = await supabase
-        .from('be-posts_input')
+        .from('be_posts_input')
         .select('uri')
         .in('uri', rows.map(r => r.uri));
 
@@ -232,7 +232,7 @@ async function backfillAll(username: string) {
 
       if (newRows.length > 0) {
         const { error } = await supabase
-          .from('be-posts_input')
+          .from('be_posts_input')
           .insert(newRows); // ← Use INSERT for truly new posts
 
         if (error) {
