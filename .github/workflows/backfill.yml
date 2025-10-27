@@ -17,7 +17,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'  # Updated to Node 20 to fix the warning
+        node-version: '20'
         cache: 'npm'
     
     - name: Install dependencies
@@ -27,8 +27,7 @@ jobs:
       run: npx tsx src/bluesky_scripts/backfill.ts
       env:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}  # Using the exact secret name you have
-        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}  # Exact name 
         BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
         BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-        # Add all other env vars that your backfill script uses
+        NODE_ENV: production  # might suppress dotenv warnings
