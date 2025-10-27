@@ -34,6 +34,11 @@ jobs:
           echo "BLUESKY_USERNAME present: ${{ secrets.BLUESKY_USERNAME != '' }}"
           echo "BLUESKY_PASSWORD present: ${{ secrets.BLUESKY_PASSWORD != '' }}"
 
+      - name: Print backfill script for debugging
+        run: |
+          echo "🧾 Contents of backfill.ts:"
+          cat src/bluesky_scripts/backfill.ts
+
       - name: Run backfill script
         run: |
           echo "🚀 Running backfill..."
