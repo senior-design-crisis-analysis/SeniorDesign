@@ -23,24 +23,33 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Create .env file with correct variable names
+      # Create the .env file used by dotenv
+      - name: Create .env file
         run: |
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
-          echo "SUPABASE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env
           echo "BLUESKY_USERNAME=${{ secrets.BLUESKY_USERNAME }}" >> .env
           echo "BLUESKY_PASSWORD=${{ secrets.BLUESKY_PASSWORD }}" >> .env
 
-      - name: Run backfill script
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+      # Sanity check: print whether env vars are set
+      - name: Check environment variables
         run: |
-          echo "Environment check before running script:"
           node -e "
             console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'SET' : 'NOT SET');
             console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
             console.log('BLUESKY_USERNAME:', process.env.BLUESKY_USERNAME ? 'SET' : 'NOT SET');
           "
-          npx tsx src/bluesky_scripts/backfill.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+
+      # Actually run the script
+      - name: Run backfill script
+        run: npx tsx src/bluesky_scripts/backfill.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
