@@ -1,9 +1,6 @@
 name: Daily Backfill
 
 on:
-  schedule:
-    - cron: '0 8 * * *'  # 8:00 AM UTC
-    - cron: '0 20 * * *' # 8:00 PM UTC
   workflow_dispatch:
 
 jobs:
@@ -14,25 +11,28 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Debug - List files
+    - name: List files to see structure
       run: ls -la
     
-    - name: Debug - Check prisma folder
-      run: ls -la prisma/
+    - name: Check if backfill script exists
+      run: ls -la scripts/
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
     
     - name: Install dependencies
       run: npm install
     
-    - name: Generate Prisma client
-      run: npx prisma generate --schema=./prisma/schema.prisma
+    - name: Check package.json for tsx
+      run: cat package.json | grep tsx
     
-    - name: Run backfill script
+    - name: Try to run backfill
       run: npx tsx scripts/backfill.ts
       env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.SUPABASE_SERIVE_ROLE_KEY }}
+        BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+        BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+        
