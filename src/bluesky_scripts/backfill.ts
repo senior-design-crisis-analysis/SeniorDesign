@@ -1,24 +1,20 @@
-/import { BskyAgent } from '@atproto/api';
+import { BskyAgent } from '@atproto/api';
 import { createClient } from '@supabase/supabase-js';
-import { fileURLToPath } from 'url';
-import path from 'path';
-import dotenv from 'dotenv';
 
-// ✅ Load .env explicitly from the project root (2 directories up)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const rootEnvPath = path.resolve(__dirname, '../../.env');
-dotenv.config({ path: rootEnvPath });
-
-console.log('[DEBUG] Loaded .env from:', rootEnvPath);
-console.log('[DEBUG] SUPABASE_URL:', process.env.SUPABASE_URL);
-console.log('[DEBUG] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
-console.log('[DEBUG] BLUESKY_USERNAME:', process.env.BLUESKY_USERNAME ? 'SET' : 'NOT SET');
+// Skip dotenv entirely — rely on GitHub Actions env vars
+console.log('Environment check in backfill.ts:');
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
+console.log('BLUESKY_USERNAME:', process.env.BLUESKY_USERNAME ? 'SET' : 'NOT SET');
 
 // ---------------- Supabase Setup ----------------
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('Missing Supabase environment variables');
+}
+
 const supabase = createClient(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // Service role key for inserts
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 // ---------------- Bluesky Agent ----------------
