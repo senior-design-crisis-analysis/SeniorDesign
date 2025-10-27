@@ -2,8 +2,8 @@ name: Daily Backfill
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # 8:00 AM UTC
-    - cron: '0 20 * * *' # 8:00 PM UTC
+    - cron: '0 8 * * *'
+    - cron: '0 20 * * *'
   workflow_dispatch:
 
 jobs:
@@ -21,32 +21,33 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Debug secrets before running
-        run: |
-          echo "SUPABASE_URL is ${SUPABASE_URL:+SET}"
-          echo "SUPABASE_SERVICE_ROLE_KEY is ${SUPABASE_SERVICE_ROLE_KEY:+SET}"
-          echo "BLUESKY_USERNAME is ${BLUESKY_USERNAME:+SET}"
-          echo "BLUESKY_PASSWORD is ${BLUESKY_PASSWORD:+SET}"
+      - name: Debug environment (shell)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY }}
           BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-
-      - name: Run backfill script (no dotenv)
         run: |
-          node -e "
-            console.log('Runtime check:')
-            console.log('SUPABASE_URL:', process.env.SUPABASE_URL)
-            console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET')
-            console.log('BLUESKY_USERNAME:', process.env.BLUESKY_USERNAME ? 'SET' : 'NOT SET')
-          "
+          echo "Shell check: SUPABASE_URL => ${SUPABASE_URL:+SET}"
+          echo "Shell check: SUPABASE_SERVICE_ROLE_KEY => ${SUPABASE_SERVICE_ROLE_KEY:+SET}"
+          # do NOT print secret values — only presence
+
+      - name: Run backfill (Node runtime receives secrets)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY }}
+          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+        run: |
+          echo "Runtime sanity check (node):"
+          node -e "console.log('SUPABASE_URL:', !!process.env.SUPABASE_URL); console.log('SUPABASE_SERVICE_ROLE_KEY:', !!process.env.SUPABASE_SERVICE_ROLE_KEY); console.log('SUPABASE_KEY:', !!process.env.SUPABASE_KEY);"
+          echo "Launching backfill script..."
           npx tsx src/bluesky_scripts/backfill.ts
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-
