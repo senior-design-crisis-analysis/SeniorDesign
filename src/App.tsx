@@ -35,6 +35,7 @@ import HelpRequestPost from "./components/HelpRequestPost";
 import "./App.css";
 import supabase from "./supabase-client";
 import TableSkeetTable from "./components/posts_table/ExtractedInfoTable";
+import FakeTest from "./components/Fake";
 
 type Row = {
   uri: string;
@@ -143,6 +144,7 @@ function App() {
       >
         Disaster Post Analysis Dashboard
       </div>
+      <FakeTest />
       <Card className="w-full container DisasterPostsintheUnitedStates">
         <CardHeader>
           <CardTitle className="text-left">
