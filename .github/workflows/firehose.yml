@@ -20,7 +20,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci  # or npm install if you don't have a package-lock.json
+        run: npm install
 
       - name: Run Firehose
         run: npx tsx src/bluesky_scripts/firehose.ts
