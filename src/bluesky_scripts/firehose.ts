@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import { franc } from 'franc-min';
 import dotenv from 'dotenv';
 dotenv.config();
+import WebSocket from "ws";
+
 
 // Validate environment variables
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -124,6 +126,7 @@ async function startFirehose() {
 
   const jetstream = new Jetstream({
     wantedCollections: ['app.bsky.feed.post'],
+    ws: WebSocket,
   });
 
   jetstream.on('commit', async (event: any) => {
@@ -185,7 +188,7 @@ async function startFirehose() {
 
     // Insert into Supabase (with duplicate skip)
     const { error } = await supabase
-      .from('firehose_posts_input')
+      .from('be_posts_input')
       .insert(postData);
 
     if (error) {
