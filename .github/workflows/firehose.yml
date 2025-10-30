@@ -48,8 +48,3 @@ jobs:
           test -n "${BLUESKY_USERNAME}" && echo "BLUESKY_USERNAME: SET" || echo "BLUESKY_USERNAME: MISSING"
           test -n "${BLUESKY_PASSWORD}" && echo "BLUESKY_PASSWORD: SET" || echo "BLUESKY_PASSWORD: MISSING"
 
-      - name: Print a snippet of the firehose script (for debugging)
-        run: |
-          echo "----- head of firehose.ts -----"
-          sed -n '1,160p' src/bluesky_scripts/firehose.ts || true
-          echo "----
