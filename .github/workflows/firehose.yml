@@ -1,0 +1,35 @@
+name: Run Firehose Daily
+
+on:
+  schedule:
+    # Run every day at 9 AM Central Time (15:00 UTC)
+    - cron: '0 15 * * *'
+  workflow_dispatch: # allows manual trigger too
+
+jobs:
+  firehose:
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+      BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+      NODE_ENV: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Firehose script
+        run: |
+          echo "🚀 Starting daily Firehose collection..."
+          npx tsx --no-warnings src/bluesky_scripts/firehose.ts
