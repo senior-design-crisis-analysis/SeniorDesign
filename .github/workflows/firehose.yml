@@ -10,6 +10,14 @@ jobs:
   run-firehose:
     runs-on: ubuntu-latest
 
+    # Job-level env: secrets become available to every step and to Node's process.env
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+      BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+      NODE_ENV: production
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,8 +27,29 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies (try npm ci, fallback to npm install)
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "Using npm ci (package-lock.json present)"
+            npm ci
+          else
+            echo "No package-lock.json found — running npm install"
+            npm install
+          fi
 
-      - name: Run Firehose
-        run: npx tsx src/bluesky_scripts/firehose.ts
+      - name: List top-level installed packages (sanity)
+        run: npm list --depth=0 || true
+
+      - name: Debug runtime env presence (no secrets printed)
+        run: |
+          echo "ENV presence check (should be SET):"
+          test -n "${SUPABASE_URL}" && echo "SUPABASE_URL: SET" || echo "SUPABASE_URL: MISSING"
+          test -n "${SUPABASE_SERVICE_ROLE_KEY}" && echo "SUPABASE_SERVICE_ROLE_KEY: SET" || echo "SUPABASE_SERVICE_ROLE_KEY: MISSING"
+          test -n "${BLUESKY_USERNAME}" && echo "BLUESKY_USERNAME: SET" || echo "BLUESKY_USERNAME: MISSING"
+          test -n "${BLUESKY_PASSWORD}" && echo "BLUESKY_PASSWORD: SET" || echo "BLUESKY_PASSWORD: MISSING"
+
+      - name: Print a snippet of the firehose script (for debugging)
+        run: |
+          echo "----- head of firehose.ts -----"
+          sed -n '1,160p' src/bluesky_scripts/firehose.ts || true
+          echo "----
