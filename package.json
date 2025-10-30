@@ -17,6 +17,8 @@
     "@radix-ui/react-slot": "^1.2.2",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "^2.57.4",
+    "@skyware/jetstream": "^0.2.5",       
+    "franc-min": "^6.1.0",                
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
