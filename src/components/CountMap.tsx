@@ -1,8 +1,15 @@
-import { useEffect, useRef } from "react";
-import mapboxgl from "mapbox-gl";
-import './CountMap.css'
-import "mapbox-gl/dist/mapbox-gl.css";
-import type { Feature, Point, GeoJsonProperties } from 'geojson';
+// src/components/CountMap.tsx
+import { useEffect, useRef } from 'react';
+import { useMap } from 'react-leaflet';
+import * as L from 'leaflet';
+
+declare global {
+  interface Window {
+    L: typeof L & {
+      heatLayer?: (data: number[][], opts?: unknown) => L.Layer;
+    };
+  }
+}
 
 type Row = {
   longitude: number | null;
@@ -14,106 +21,56 @@ type Props = {
   posts: Row[];
 };
 
-const CountMap = ({ posts }: Props) => {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
+export default function CountMap({ posts }: Props) {
+  const map = useMap();
+  const heatLayerRef = useRef<L.Layer | null>(null);
 
   useEffect(() => {
-    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
-    if (!mapContainerRef.current) return;
+    // 1. inject the script only once
+    const id = 'leaflet-heat-script';
+    if (!document.getElementById(id)) {
+      const script = document.createElement('script');
+      script.id = id;
+      script.src =
+        'https://cdn.jsdelivr.net/gh/python-visualization/folium@main/folium/templates/leaflet_heat.min.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
 
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [-98.5795, 39.8283],
-      zoom: 2,
-      maxBounds: [
-        [-179, 18],
-        [-65, 72],
-      ],
-    });
+    // 2. wait until the script is ready
 
-    const map = mapRef.current;
+  const start = setInterval(() => {
+    if (typeof window === 'undefined') return;          // SSR guard
+    if (!window.L?.heatLayer) return;
 
-    map.on('load', () => {
-      // keep only rows with coordinates
+    clearInterval(start);
 
-      const features: Feature<Point, GeoJsonProperties>[] = posts
-        .filter((p): p is Row & { longitude: number; latitude: number } =>
-          p.longitude != null && p.latitude != null
-        )
-        .map(p => ({
-          type: 'Feature' as const,
-          properties: { timestamp: p.indexed_at },
-          geometry: {
-            type: 'Point' as const,
-            coordinates: [p.longitude, p.latitude],
-          },
-        }));
+    // remove old layer
+    if (heatLayerRef.current) {
+      map.removeLayer(heatLayerRef.current);
+      heatLayerRef.current = null;
+    }
 
-const source: GeoJSON.FeatureCollection = {
-  type: 'FeatureCollection',
-  features, // now typed correctly
-};
+    const clean = posts
+      .filter((p) => p.latitude != null && p.longitude != null)
+      .map((p) => [p.latitude!, p.longitude!, 1] as [number, number, number]);
 
-      map.addSource('filtered-points', { type: 'geojson', data: source });
+    const heatFactory = window.L.heatLayer;   // narrow type
+    heatLayerRef.current = heatFactory(clean, {
+      radius: 25,
+      blur: 15,
+      maxZoom: 17,
+    }).addTo(map);
+  }, 50);
 
-      // heat-map layer
-      map.addLayer({
-        id: 'heatmap',
-        type: 'heatmap',
-        source: 'filtered-points',
-        paint: {
-          'heatmap-weight': 1,
-          'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 15, 3],
-          'heatmap-color': [
-            'interpolate',
-            ['linear'],
-            ['heatmap-density'],
-            0,
-            'rgba(33,102,172,0)',
-            0.2,
-            'rgb(103,169,207)',
-            0.4,
-            'rgb(209,229,240)',
-            0.6,
-            'rgb(253,219,199)',
-            0.8,
-            'rgb(239,138,98)',
-            1,
-            'rgb(178,24,43)',
-          ],
-          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 15, 20],
-          'heatmap-opacity': 0.8,
-        },
-      });
+    return () => {
+      clearInterval(start);
+      if (heatLayerRef.current) {
+        map.removeLayer(heatLayerRef.current);
+        heatLayerRef.current = null;
+      }
+    };
+  }, [map, posts]);
 
-      // optional circle layer
-      map.addLayer({
-        id: 'circles',
-        type: 'circle',
-        source: 'filtered-points',
-        minzoom: 7,
-        paint: {
-          'circle-radius': 4,
-          'circle-color': 'rgba(0,0,0,0.7)',
-          'circle-stroke-color': 'white',
-          'circle-stroke-width': 1,
-          'circle-opacity': 0.6,
-        },
-      });
-    });
-
-    return () => map.remove();
-  }, [posts]); // re-build sources when filtered set changes
-
-  return (
-    <div
-      ref={mapContainerRef}
-      className="CountMap"
-      style={{ width: '100%', height: '100%' }}
-    />
-  );
-};
-
-export default CountMap;
+  return null; // we do not need an extra div – react-leaflet already gave us one
+}

@@ -35,7 +35,8 @@ import HelpRequestPost from "./components/HelpRequestPost";
 import "./App.css";
 import supabase from "./supabase-client";
 import TableSkeetTable from "./components/posts_table/ExtractedInfoTable";
-import FakeTest from "./components/Fake";
+import { MapContainer, TileLayer } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 type Row = {
   uri: string;
@@ -100,7 +101,7 @@ function App() {
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error, count } = await supabase
-        .from("FE2-extracted_info_output_duplicate")
+        .from("be_extracted_info_output")
         .select("*", { count: "exact" }); // ← see how many rows exist
 
       console.log("Supabase answer:", { data, error, count });
@@ -144,7 +145,6 @@ function App() {
       >
         Disaster Post Analysis Dashboard
       </div>
-      <FakeTest />
       <Card className="w-full container DisasterPostsintheUnitedStates">
         <CardHeader>
           <CardTitle className="text-left">
@@ -257,11 +257,21 @@ function App() {
           </CardAction>
         </CardHeader>
         <CardContent className="DPITUSContainer">
-          <CountMap posts={visibleMapPoints} />
+          {/*<CountMap posts={visibleMapPoints} />*/}
+
+          <MapContainer
+              center={[39.8, -98.5]}
+              zoom={4}
+              className="w-full h-[500px]"
+          >
+    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+    <CountMap posts={visibleMapPoints} />
+  </MapContainer>
+
           {showHelpList && (
             <Card className="w-full max-w-sm HelpRequestPosts">
               <div className="card-header">
-                <p className="card-header-text">At a Glance</p>
+                <p className="card-header-text">Help Requests</p>
               </div>
               <div className="frame-clip-content max-h-[473px] w-[377px] overflow-y-auto overflow-x-hidden scrollbar-none">
                 <div className="frame-posts">
