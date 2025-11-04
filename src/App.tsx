@@ -325,7 +325,21 @@ function App() {
               </div>
             </Card>
           )}
+          
         </CardContent>
+
+        {/*  */}
+        {/* <Card className="w-full container mt-6"> */}
+          <CardContent>
+            {disasterStats.length > 0 ? (
+              <DisasterTypeCount disasterData={disasterStats} />
+            ) : (
+              <p className="text-center text-slate-500 py-8">
+                No disaster type data available.
+              </p>
+            )}
+          </CardContent>
+        {/* </Card> */}
       </Card>
       <TableSkeetTable />
 
@@ -349,7 +363,7 @@ function App() {
     </Card>
 
       {/* ADDED NOV.4 BY JASZ */}
-    <Card className="w-full container mt-6">
+    {/* <Card className="w-full container mt-6">
       <CardHeader>
         <CardTitle className="text-left">Disaster Type Distribution</CardTitle>
         <CardDescription className="text-left">
@@ -365,7 +379,7 @@ function App() {
           </p>
         )}
       </CardContent>
-    </Card>
+    </Card> */}
 
     </div>
   );
