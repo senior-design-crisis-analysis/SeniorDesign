@@ -35,6 +35,8 @@ import HelpRequestPost from "./components/HelpRequestPost";
 import "./App.css";
 import supabase from "./supabase-client";
 import TableSkeetTable from "./components/posts_table/ExtractedInfoTable";
+import AuthorAnalysis from "./components/AuthorAnalysis";
+import DisasterTypeCount from "./components/DisasterTypeCount";
 
 type Row = {
   uri: string;
@@ -96,11 +98,47 @@ function App() {
     return visibleMapPoints.filter((p) => p.help_request); // already filtered above, but keeps the intent explicit
   }, [visibleMapPoints, showHelpList]);
 
+  const authorStats = useMemo(() => {
+  // Count posts per author
+  const authorCounts: Record<string, number> = {};
+  
+  posts.forEach(post => {
+    if (post.author) {
+      authorCounts[post.author] = (authorCounts[post.author] || 0) + 1;
+    }
+  });
+
+  // ADDED NOV.4 BY JASZ
+  // Convert to array and filter for authors with 10+ posts
+  return Object.entries(authorCounts)
+    .map(([author, postCount]) => ({ author, postCount }))
+    .filter(author => author.postCount >= 10)
+    .sort((a, b) => b.postCount - a.postCount); // Sort descending
+  }, [posts]);
+
+  // ADDED NOV.4 BY JASZ
+  const disasterStats = useMemo(() => {
+    const disasterCounts: Record<string, number> = {};
+  
+    posts.forEach(post => {
+      if (post.disaster_type) {
+        disasterCounts[post.disaster_type] = (disasterCounts[post.disaster_type] || 0) + 1;
+      }
+    });
+
+    // Convert to array and sort by count descending
+    return Object.entries(disasterCounts)
+      .map(([disasterType, count]) => ({ disasterType, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [posts]);
+
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error, count } = await supabase
-        .from("FE2-extracted_info_output_duplicate")
-        .select("*", { count: "exact" }); // ← see how many rows exist
+        //.from("FE2-extracted_info_output_duplicate")
+        .from("be_extracted_info_output")
+        .select("*", { count: "exact" }) // ← see how many rows exist
+        .limit(3000);
 
       console.log("Supabase answer:", { data, error, count });
       if (error) {
@@ -290,6 +328,45 @@ function App() {
         </CardContent>
       </Card>
       <TableSkeetTable />
+
+      {/* ADDED NOV.4 BY JASZ */}
+    <Card className="w-full container mt-6">
+      <CardHeader>
+        <CardTitle className="text-left">Top Authors Analysis</CardTitle>
+        <CardDescription className="text-left">
+          Authors with the most disaster-related posts
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {authorStats.length > 0 ? (
+          <AuthorAnalysis authorData={authorStats} />
+        ) : (
+          <p className="text-center text-slate-500 py-8">
+            No authors with 10+ posts in the current dataset.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+
+      {/* ADDED NOV.4 BY JASZ */}
+    <Card className="w-full container mt-6">
+      <CardHeader>
+        <CardTitle className="text-left">Disaster Type Distribution</CardTitle>
+        <CardDescription className="text-left">
+          Breakdown of posts by disaster type
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {disasterStats.length > 0 ? (
+          <DisasterTypeCount disasterData={disasterStats} />
+        ) : (
+          <p className="text-center text-slate-500 py-8">
+            No disaster type data available.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+
     </div>
   );
 }
