@@ -329,18 +329,33 @@ function App() {
         </CardContent>
 
         {/*  */}
-        {/* <Card className="w-full container mt-6"> */}
+        {/* Bottom section: Disaster Type and Author Analysis side by side */}
           <CardContent>
-            {disasterStats.length > 0 ? (
-              <DisasterTypeCount disasterData={disasterStats} />
-            ) : (
-              <p className="text-center text-slate-500 py-8">
-                No disaster type data available.
-              </p>
-            )}
+            <div className="mt-6 grid grid-cols-2 gap-6">
+              {/* Left: Disaster Type Count */}
+              <div>
+                {disasterStats.length > 0 ? (
+                  <DisasterTypeCount disasterData={disasterStats} />
+                ) : (
+                  <p className="text-center text-slate-500 py-8">
+                    No disaster type data available.
+                  </p>
+                )}
+              </div>
+
+              {/* Right: Author Analysis */}
+              <div>
+                {authorStats.length > 0 ? (
+                  <AuthorAnalysis authorData={authorStats} />
+                ) : (
+                  <p className="text-center text-slate-500 py-8">
+                    No authors with 10+ posts in the current dataset.
+                  </p>
+                )}
+              </div>
+            </div>
           </CardContent>
-        {/* </Card> */}
-      </Card>
+      </Card> 
       <TableSkeetTable />
 
       {/* ADDED NOV.4 BY JASZ */}
