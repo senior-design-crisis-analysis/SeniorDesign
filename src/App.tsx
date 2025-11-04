@@ -35,6 +35,7 @@ import HelpRequestPost from "./components/HelpRequestPost";
 import "./App.css";
 import supabase from "./supabase-client";
 import TableSkeetTable from "./components/posts_table/ExtractedInfoTable";
+import LocationCount from "./components/LocationCount/LocationCount";
 import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -61,13 +62,15 @@ function App() {
   const [posts, setPosts] = useState<Row[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [showHelpList, setShowHelpList] = useState(true); // ← NEW
+  const [showHelpList, setShowHelpList] = useState(false); // ← default help request toggle
 
   const today = new Date();
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(today.getFullYear() - 1); // 1 year ago
+  //const oneYearAgo = new Date();
+  const twoWeeksAgo = new Date(today);
+  twoWeeksAgo.setDate(today.getDate() - 14);   // 14 days ago
+  //oneYearAgo.setFullYear(today.getFullYear() - 1); // 1 year ago
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: oneYearAgo, // 00:00 on the same day last year
+    from: twoWeeksAgo, // 00:00 on the same day 2 weeks ago
     to: today, // 00:00 today (inclusive for your ≤ test)
   });
 
@@ -97,6 +100,18 @@ function App() {
     if (!showHelpList) return []; // panel hidden
     return visibleMapPoints.filter((p) => p.help_request); // already filtered above, but keeps the intent explicit
   }, [visibleMapPoints, showHelpList]);
+
+  const locationSummary = useMemo(() => {
+  const counts: Record<string, number> = {};
+  visibleMapPoints.forEach((p) => {
+    const key = p.location_mentioned ?? 'Unknown';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts)
+    .map(([locationType, count]) => ({ locationType, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);          // top-10
+  }, [visibleMapPoints]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -262,11 +277,11 @@ function App() {
           <MapContainer
               center={[39.8, -98.5]}
               zoom={4}
-              className="w-full h-[500px]"
+              className="w-full h-full"
           >
-    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-    <CountMap posts={visibleMapPoints} />
-  </MapContainer>
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <CountMap posts={visibleMapPoints} />
+          </MapContainer>
 
           {showHelpList && (
             <Card className="w-full max-w-sm HelpRequestPosts">
@@ -298,6 +313,12 @@ function App() {
                 </div>
               </div>
             </Card>
+          )}
+
+          {!showHelpList && (
+            <div className="w-full max-w-sm TopLocations">
+              <LocationCount disasterData={locationSummary} />
+            </div>
           )}
         </CardContent>
       </Card>
