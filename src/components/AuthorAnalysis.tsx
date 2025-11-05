@@ -50,8 +50,8 @@ const AuthorAnalysis = ({ authorData }: Props) => {
             className="absolute bg-background border rounded-lg px-3 py-2 shadow-xl z-20 min-w-[120px] text-center whitespace-nowrap pointer-events-none transition-opacity duration-100"
             style={{
               left: tooltipPos.x,
-              top: tooltipPos.y - 40, // offset above cursor
-              transform: "translate(-50%, -100%)",
+              top: tooltipPos.y - 15, // offset above cursor
+              transform: "translate(-30%, -100%)",
             }}
           >
             <div className="font-bold text-lg tabular-nums text-foreground mb-1">
