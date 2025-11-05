@@ -69,7 +69,8 @@ export default function TableSkeetTable() {
     const fetchData = async () => {
       setLoading(true);
       const { data, error } = await supabase
-        .from("SZ-extracted_info_output_duplicate")
+        // .from("SZ-extracted_info_output_duplicate")
+        .from("be_extracted_info_output")
         .select("*")
         .limit(100);
 
