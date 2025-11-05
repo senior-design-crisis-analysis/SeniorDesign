@@ -72,7 +72,7 @@ export default function TableSkeetTable() {
         // .from("SZ-extracted_info_output_duplicate")
         .from("be_extracted_info_output")
         .select("*")
-        .limit(100);
+        .limit(10000);
 
       if (error) console.error(error);
       else setData(data || []);
