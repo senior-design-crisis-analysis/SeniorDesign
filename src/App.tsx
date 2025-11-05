@@ -358,44 +358,6 @@ function App() {
       </Card> 
       <TableSkeetTable />
 
-      {/* ADDED NOV.4 BY JASZ */}
-    <Card className="w-full container mt-6">
-      <CardHeader>
-        <CardTitle className="text-left">Top Authors Analysis</CardTitle>
-        <CardDescription className="text-left">
-          Authors with the most disaster-related posts
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {authorStats.length > 0 ? (
-          <AuthorAnalysis authorData={authorStats} />
-        ) : (
-          <p className="text-center text-slate-500 py-8">
-            No authors with 10+ posts in the current dataset.
-          </p>
-        )}
-      </CardContent>
-    </Card>
-
-      {/* ADDED NOV.4 BY JASZ */}
-    {/* <Card className="w-full container mt-6">
-      <CardHeader>
-        <CardTitle className="text-left">Disaster Type Distribution</CardTitle>
-        <CardDescription className="text-left">
-          Breakdown of posts by disaster type
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {disasterStats.length > 0 ? (
-          <DisasterTypeCount disasterData={disasterStats} />
-        ) : (
-          <p className="text-center text-slate-500 py-8">
-            No disaster type data available.
-          </p>
-        )}
-      </CardContent>
-    </Card> */}
-
     </div>
   );
 }
