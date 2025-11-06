@@ -5,16 +5,18 @@ on:
     - cron: '0 15 * * *' # 9am Central (15:00 UTC)
   workflow_dispatch:
 
-jobs:
-  firehose:
-    runs-on: ubuntu-latest
+# Reusable config for both jobs
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+  BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+  NODE_ENV: production
 
-    env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
-      BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-      NODE_ENV: production
+jobs:
+  firehose-keywords:
+    name: Run Firehose (Keywords)
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -24,31 +26,40 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Clear npm cache
-        run: |
-          echo "🧹 Clearing npm cache..."
-          npm cache clean --force
-          rm -rf node_modules package-lock.json
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci || npm install
 
-      - name: Debug environment variables
-        run: |
-          echo "🧪 Debugging environment vars..."
-          echo "SUPABASE_URL present: ${{ secrets.SUPABASE_URL != '' }}"
-          echo "SUPABASE_SERVICE_ROLE_KEY present: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}"
-          echo "BLUESKY_USERNAME present: ${{ secrets.BLUESKY_USERNAME != '' }}"
-          echo "BLUESKY_PASSWORD present: ${{ secrets.BLUESKY_PASSWORD != '' }}"
       - name: Debug file existence
         run: |
           echo "Checking for firehose_keywords.ts..."
           ls -R src/bluesky_scripts || echo "Directory missing!"
 
-
       - name: Run Firehose (Keywords)
         run: npx tsx src/bluesky_scripts/firehose_keywords.ts
+
+  firehose-accounts:
+    name: Run Firehose (Accounts)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Debug file existence
+        run: |
+          echo "Checking for firehose_accounts.ts..."
+          ls -R src/bluesky_scripts || echo "Directory missing!"
 
       - name: Run Firehose (Accounts)
         run: npx tsx src/bluesky_scripts/firehose_accounts.ts
