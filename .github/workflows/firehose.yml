@@ -41,6 +41,11 @@ jobs:
           echo "SUPABASE_SERVICE_ROLE_KEY present: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}"
           echo "BLUESKY_USERNAME present: ${{ secrets.BLUESKY_USERNAME != '' }}"
           echo "BLUESKY_PASSWORD present: ${{ secrets.BLUESKY_PASSWORD != '' }}"
+      - name: Debug file existence
+        run: |
+          echo "Checking for firehose_keywords.ts..."
+          ls -R src/bluesky_scripts || echo "Directory missing!"
+
 
       - name: Run Firehose (Keywords)
         run: npx tsx src/bluesky_scripts/firehose_keywords.ts
