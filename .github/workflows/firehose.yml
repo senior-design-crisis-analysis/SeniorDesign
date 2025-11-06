@@ -1,16 +1,14 @@
-name: Run Firehose Daily
+name: Run Both Firehose
 
 on:
   schedule:
-    # Run every day at 9 AM Central Time (15:00 UTC)
-    - cron: '0 15 * * *'
-  workflow_dispatch: # allows manual trigger too
+    - cron: '0 15 * * *' # 9am Central (15:00 UTC)
+  workflow_dispatch:
 
 jobs:
-  run-firehose:
+  firehose:
     runs-on: ubuntu-latest
 
-    # Job-level env: secrets become available to every step and to Node's process.env
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -22,31 +20,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies (try npm ci, fallback to npm install)
+      - name: Clear npm cache
         run: |
-          if [ -f package-lock.json ]; then
-            echo "Using npm ci (package-lock.json present)"
-            npm ci
-          else
-            echo "No package-lock.json found — running npm install"
-            npm install
-          fi
+          echo "🧹 Clearing npm cache..."
+          npm cache clean --force
+          rm -rf node_modules package-lock.json
 
-      - name: List top-level installed packages (sanity)
-        run: npm list --depth=0 || true
+      - name: Install dependencies
+        run: npm install
 
-      - name: Debug runtime env presence (no secrets printed)
+      - name: Debug environment variables
         run: |
-          echo "ENV presence check (should be SET):"
-          test -n "${SUPABASE_URL}" && echo "SUPABASE_URL: SET" || echo "SUPABASE_URL: MISSING"
-          test -n "${SUPABASE_SERVICE_ROLE_KEY}" && echo "SUPABASE_SERVICE_ROLE_KEY: SET" || echo "SUPABASE_SERVICE_ROLE_KEY: MISSING"
-          test -n "${BLUESKY_USERNAME}" && echo "BLUESKY_USERNAME: SET" || echo "BLUESKY_USERNAME: MISSING"
-          test -n "${BLUESKY_PASSWORD}" && echo "BLUESKY_PASSWORD: SET" || echo "BLUESKY_PASSWORD: MISSING"
+          echo "🧪 Debugging environment vars..."
+          echo "SUPABASE_URL present: ${{ secrets.SUPABASE_URL != '' }}"
+          echo "SUPABASE_SERVICE_ROLE_KEY present: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}"
+          echo "BLUESKY_USERNAME present: ${{ secrets.BLUESKY_USERNAME != '' }}"
+          echo "BLUESKY_PASSWORD present: ${{ secrets.BLUESKY_PASSWORD != '' }}"
 
-      - name: Run Firehose
-        run: npx tsx src/bluesky_scripts/firehose.ts
+      - name: Run Firehose (Keywords)
+        run: npx tsx src/bluesky_scripts/firehose_keywords.ts
+
+      - name: Run Firehose (Accounts)
+        run: npx tsx src/bluesky_scripts/firehose_accounts.ts
