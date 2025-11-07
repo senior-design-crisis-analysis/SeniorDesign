@@ -15,27 +15,19 @@ const CONFIG = {
   SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
   MAX_POSTS: 10000,
   KEYWORDS: [
-    "earthquake",
-    "tornado",
-    "hurricane",
-    "flood",
-    "wildfire",
-    "storm",
-    "blizzard",
-    "drought",
-    "evacuation",
-    "landslide",
-    "mudslide",
-    "hail",
-    "volcano",
-    "aftershock",
-    "disaster",
-    "tsunami",
-    "emergency",
-    "rescue",
-    "shelter",
-    "damage",
-  ],
+  // fires
+  'fire department', 'brush fire', 'apartment fire', 'fire crews', 'wildfire smoke',
+  'wild fire',
+
+  // infrastructure issues
+  'power outage', 'blackout', 'downed lines', 'gas leak', 'bridge collapse',
+  'water main break', 'sinkhole', 'chemical spill', 'train derailment',
+  'building collapse',
+
+  // health & emergency
+  'mass casualty', 'ambulance', 'injured', 'shelter in place', 'state of emergency'
+],
+
 };
 
 const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
