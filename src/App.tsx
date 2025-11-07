@@ -103,7 +103,7 @@ function App() {
     return visibleMapPoints.filter((p) => p.help_request); // already filtered above, but keeps the intent explicit
   }, [visibleMapPoints, showHelpList]);
 
-  const locationSummary = useMemo(() => {
+  {/*const locationSummary = useMemo(() => {
   const counts: Record<string, number> = {};
   visibleMapPoints.forEach((p) => {
     const key = p.location_mentioned ?? 'Unknown';
@@ -113,7 +113,7 @@ function App() {
     .map(([locationType, count]) => ({ locationType, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);          // top-10
-  }, [visibleMapPoints]);
+  }, [visibleMapPoints]);*/}
   const authorStats = useMemo(() => {
   // Count posts per author
   const authorCounts: Record<string, number> = {};
@@ -147,6 +147,18 @@ function App() {
       .map(([disasterType, count]) => ({ disasterType, count }))
       .sort((a, b) => b.count - a.count);
   }, [posts]);
+
+  const locationSummary = useMemo(() => {
+  const counts: Record<string, number> = {};
+  visibleMapPoints.forEach((p) => {
+    const key = p.location_mentioned ?? 'Unknown';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts)
+    .map(([locationType, count]) => ({ locationType, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);          // top-10
+  }, [visibleMapPoints]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -384,7 +396,13 @@ function App() {
                 )}
               </div>
             </div>
-          </CardContent>
+  
+          {!showHelpList && (
+            <div className="w-full max-w-sm TopLocations">
+              <LocationCount disasterData={locationSummary} />
+            </div>
+          )}
+        </CardContent>
       </Card> 
       <TableSkeetTable />
 
