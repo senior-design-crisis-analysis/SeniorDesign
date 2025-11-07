@@ -39,6 +39,31 @@ jobs:
       - name: Run Firehose (Keywords)
         run: npx tsx src/bluesky_scripts/firehose_keywords.ts
 
+  firehose-keywords1:
+    name: Run Firehose (Keywords)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Debug file existence
+        run: |
+          echo "Checking for firehose_keywords1.ts..."
+          ls -R src/bluesky_scripts || echo "Directory missing!"
+
+      - name: Run Firehose (Keywords)
+        run: npx tsx src/bluesky_scripts/firehose_keywords1.ts
+
   firehose-accounts:
     name: Run Firehose (Accounts)
     runs-on: ubuntu-latest

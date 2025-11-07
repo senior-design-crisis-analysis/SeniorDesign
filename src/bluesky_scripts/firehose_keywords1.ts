@@ -15,28 +15,20 @@ const CONFIG = {
   SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
   MAX_POSTS: 10000,
   KEYWORDS: [
-  // fires
-  'fire department', 'brush fire', 'apartment fire', 'fire crews', 'wildfire smoke',
-  'wild fire', 'wildfire', 'structure fire', 'fire evacuation', 'fire warning',
-  'fire alert', 'fire damage', 'firefighters', 'fire suppression', 'fire outbreak',
-  'fire containment', 'fire hazard', 'fire risk', 'fire zone', 'fire watch',
-  ' firefighters on scene',
 
-  // infrastructure issues
-  'power outage', 'blackout', 'downed lines', 'gas leak', 'bridge collapse',
-  'water main break', 'sinkhole', 'chemical spill', 'train derailment',
-  'building collapse', 'power outage', 'pipeline rupture', 'infrastructure failure',
-
-  // health & emergency
-  'mass casualty', 'ambulance', 'injured', 'shelter in place', 'state of emergency',
-  'rescue teams', 'search and rescue', 'medical emergency', 'public health alert',
-  'disease outbreak', 'contaminated water', 'epidemic', 'pandemic',
-  'hospital surge', 'emergency response', 'quarantine order',
-  'fatal accident', 'critical condition', 'disaster relief', 'emergency evacuation',
-  'first responders', 'emergency services', 'rescue operation', 'urgent assistance',
-  'triage', 'mass gathering', 'situation report', 
-  'emergency medical services', 'displaced residents', 'crisis management',
-  'temporary shelter', 'emergency hotline', 'public safety alert', 'health advisory'
+    // traffic & accidents 
+    'traffic accident', 'road closed', 'car crash', 'multi-vehicle', 
+    'pileup', 'major crash', 'traffic backed up', 'intersection blocked', 
+    'vehicle collision', 'freeway crash', 'highway crash', 'road closure',
+    'lane blocked', 'intersection closed', 'pedestrian struck',
+    
+    // weather & natural disasters 
+    'storm damage', 'flooding', 'hailstorm', 'mudslide', 
+    'tornado warning', 'evacuation order', 'extreme heat', 'cold front', 
+    'severe weather alert', 'flash flood warning', 'earthquake', 
+    'hurricane', 'tornado', 'severe thunderstorm', 'blizzard', 'winter storm',
+    'tsunami warning', 'volcanic eruption', 'landslide', 'drought conditions',
+    'storm damage', 'evacuation order', 'state of emergency', 'tropical storm'  
 ],
 
 };
