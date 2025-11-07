@@ -103,6 +103,17 @@ function App() {
     return visibleMapPoints.filter((p) => p.help_request); // already filtered above, but keeps the intent explicit
   }, [visibleMapPoints, showHelpList]);
 
+  const locationSummary = useMemo(() => {
+  const counts: Record<string, number> = {};
+  visibleMapPoints.forEach((p) => {
+    const key = p.location_mentioned ?? 'Unknown';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts)
+    .map(([locationType, count]) => ({ locationType, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);          // top-10
+  }, [visibleMapPoints]);
   const authorStats = useMemo(() => {
   // Count posts per author
   const authorCounts: Record<string, number> = {};
@@ -152,10 +163,8 @@ function App() {
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error, count } = await supabase
-        //.from("FE2-extracted_info_output_duplicate")
         .from("be_extracted_info_output")
-        .select("*", { count: "exact" }) // ← see how many rows exist
-        .limit(3000);
+        .select("*", { count: "exact" }); // ← see how many rows exist
 
       console.log("Supabase answer:", { data, error, count });
       if (error) {
@@ -351,6 +360,12 @@ function App() {
                 </div>
               </div>
             </Card>
+          )}
+
+          {!showHelpList && (
+            <div className="w-full max-w-sm TopLocations">
+              <LocationCount disasterData={locationSummary} />
+            </div>
           )}
           
         </CardContent>
