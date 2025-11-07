@@ -110,6 +110,10 @@ async function startFirehose() {
     process.exit(0);
   });
 
+  process.on("exit", () => {
+    console.log(`🏁 Finished run — total posts collected: ${collectedPosts}`);
+  });
+
   jetstream.start();
 }
 
