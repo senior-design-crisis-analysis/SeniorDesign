@@ -21,14 +21,14 @@ Our main goal is to create a centralized dashboard that presents real-time infor
   - Supabase
 - APIs ☁️:
   - Bluesky API
-- LLM Providers 🤖:
-  - Groq
-  - Mistral AI
-  - Moonshot AI
-  - Deepseek
-  - OpenAI
-  - Anthropic
-  - Gemini
+- LLM Providers 🤖: <br> 
+We're using the [Groq API provider](https://labelstud.io) (not Grok) due to its generous free tier rate limits. <br>
+
+| Project Phase | Model(s) In Use |
+|---|---|
+| Benchmarking | `llama-3.1-8b-instant` `openai/gpt-oss-20b` `moonshotai/kimi-k2-instruct-0905` `qwen/qwen3-32b` <br> Anthropic's Claude, Google's Gemini, Deepseel, Mistral AI |
+| Production | `qwen/qwen3-32b` | <br>
+
 - Hosting 🥂:
   - Vercel
 - Miscellaneous 🥗:

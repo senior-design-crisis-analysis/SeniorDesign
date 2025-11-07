@@ -47,6 +47,7 @@ import { Calendar } from "../ui/calendar";
 import type { TableSkeet } from "@/components/posts_table/tableskeet_type";
 import { columns } from "./columns";
 import "./../../App.css";
+import { Info } from "lucide-react";
 //end imports
 
 export default function TableSkeetTable() {
@@ -68,7 +69,8 @@ export default function TableSkeetTable() {
     const fetchData = async () => {
       setLoading(true);
       const { data, error } = await supabase
-        .from("SZ-extracted_info_output_duplicate")
+        // .from("SZ-extracted_info_output_duplicate")
+        .from("be_extracted_info_output")
         .select("*")
         .limit(100);
 
@@ -84,6 +86,11 @@ export default function TableSkeetTable() {
   React.useEffect(() => {
     table.getColumn("help_req")?.setFilterValue(helpOnly ? true : undefined);
   }, [helpOnly]);
+
+  //handle tooltip to open link in new tab on click
+  const handleTooltipClick = () => {
+    window.open("/info", "_blank");
+  };
 
   //create table
   const table = useReactTable({
@@ -122,7 +129,16 @@ export default function TableSkeetTable() {
   return (
     <div className="bg-slate-50 w-full overflow-x-auto py-6 font-inter font-normal text-sm text-[#020617]">
       {/* Header */}
-      <div className="flex text-xl font-medium px-2">All Activity</div>
+      <div className="flex text-xl font-medium px-2 gap-1 items-center">
+        All Activity
+        <button
+          title="tooltip"
+          onClick={handleTooltipClick}
+          className="inline-flex items-center justify-center rounded-full bg-black h-[22px] w-[22px]"
+        >
+          <Info size={22} strokeWidth={2} color="#ffffff" />
+        </button>
+      </div>
       {/* Filters */}
       <div className="flex items-center py-2 gap-2 flex-wrap justify-between">
         {/* Search Input */}
@@ -148,7 +164,7 @@ export default function TableSkeetTable() {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="bg-white w-[320px] justify-between h-10"
+                className="bg-white w-[320px] justify-between h-10 font-normal"
               >
                 {dateRange?.from && dateRange?.to
                   ? `${dateRange.from

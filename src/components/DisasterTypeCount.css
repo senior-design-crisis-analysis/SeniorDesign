@@ -1,0 +1,61 @@
+:root {
+  --chart-1: 12 76% 61%;
+}
+
+/* DisasterTypeCount Component Styles
+
+:root {
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+} */
+
+/* Chart color classes for direct use if needed
+.chart-color-1 {
+  background-color: hsl(var(--chart-1));
+}
+
+.chart-color-2 {
+  background-color: hsl(var(--chart-2));
+}
+
+.chart-color-3 {
+  background-color: hsl(var(--chart-3));
+}
+
+.chart-color-4 {
+  background-color: hsl(var(--chart-4));
+}
+
+.chart-color-5 {
+  background-color: hsl(var(--chart-5));
+}
+
+/* Animation for bar fill */
+/* @keyframes barFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--target-width);
+  }
+}
+
+.bar-fill-animation {
+  animation: barFill 0.8s ease-out forwards;
+}
+
+/* Responsive adjustments */
+/* @media (max-width: 768px) {
+  .disaster-type-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .disaster-type-bar-container {
+    width: 100%;
+  }
+}  */

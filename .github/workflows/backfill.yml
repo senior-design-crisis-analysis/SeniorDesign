@@ -1,0 +1,54 @@
+name: Run Backfill
+
+on:
+  schedule:
+    - cron: '0 15 * * *' # 9am UTC time
+  workflow_dispatch:
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+      BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+      NODE_ENV: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Clear npm cache
+        run: |
+          echo "🧹 Clearing npm cache..."
+          npm cache clean --force
+          rm -rf node_modules package-lock.json
+
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Debug environment variables
+        run: |
+          echo "🧪 Debugging environment vars..."
+          echo "SUPABASE_URL present: ${{ secrets.SUPABASE_URL != '' }}"
+          echo "SUPABASE_SERVICE_ROLE_KEY present: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}"
+          echo "BLUESKY_USERNAME present: ${{ secrets.BLUESKY_USERNAME != '' }}"
+          echo "BLUESKY_PASSWORD present: ${{ secrets.BLUESKY_PASSWORD != '' }}"
+
+      - name: Print backfill script for debugging
+        run: |
+          echo "🧾 Contents of backfill.ts:"
+          cat src/bluesky_scripts/backfill.ts
+
+      - name: Run backfill script
+        run: |
+          echo "🚀 Running backfill..."
+          npx tsx --no-warnings src/bluesky_scripts/backfill.ts
