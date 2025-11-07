@@ -17,7 +17,13 @@ const CONFIG = {
   TRACKED_ACCOUNTS: [
     'nws.noaa.gov', 'fema.govmirrors.com', 'actionnews5.com', 'npr.org',
     'sacurrent.bsky.social', 'calfire.bsky.social', 'cbssundaymorning.bsky.social',
-    'ucanr.edu', 'massdfs.bsky.social', 'denverpolice.bsky.social'
+    'ucanr.edu', 'massdfs.bsky.social', 'denverpolice.bsky.social', 'nytimes.com',
+    'cnn.com', 'cnnipr.bsky.social', 'reuters.com', 'usgs-quakebot.bsky.social',
+    'noaacomms.noaa.gov', 'noaa.gov', 'climate.noaa.gov', 'nws.noaa.gov', 
+    'apnews.com', 'boston.gov', '311.boston.gov', 'berkeleyca.gov', 'chicago-city.bsky.social',
+    'fire.boston.gov', 'cityofbellevuewa.bsky.social', 'aptnnews.bsky.social',
+    'cbseveningnews.bsky.social', 'alert.boston.gov', 'cityema.bsky.social',
+    'cityofokc.bsky.social', 'forbes.com', 'altnps.bsky.social'
   ],
   MAX_POSTS: 10000,
 };
