@@ -103,7 +103,7 @@ function App() {
     return visibleMapPoints.filter((p) => p.help_request); // already filtered above, but keeps the intent explicit
   }, [visibleMapPoints, showHelpList]);
 
-  const locationSummary = useMemo(() => {
+  {/*const locationSummary = useMemo(() => {
   const counts: Record<string, number> = {};
   visibleMapPoints.forEach((p) => {
     const key = p.location_mentioned ?? 'Unknown';
@@ -113,7 +113,7 @@ function App() {
     .map(([locationType, count]) => ({ locationType, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);          // top-10
-  }, [visibleMapPoints]);
+  }, [visibleMapPoints]);*/}
   const authorStats = useMemo(() => {
   // Count posts per author
   const authorCounts: Record<string, number> = {};
