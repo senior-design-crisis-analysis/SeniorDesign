@@ -24,7 +24,8 @@ const HelpRequestPost = ({ data }: Props) => {
     <div className="HelpRequestPost">
       <div className="header">
         <p className="handle-text">@{handle}</p>
-        <div className="badges">
+      </div>
+      <div className="badges">
           <Badge
             className={
               "rounded-full px-3 py-1 border-2 capitalize flex items-center justify-center whitespace-nowrap overflow-hidden text-ellipsis"
@@ -48,7 +49,6 @@ const HelpRequestPost = ({ data }: Props) => {
           >
             {severity}
           </Badge>
-        </div>
       </div>
 
       <div className="content">

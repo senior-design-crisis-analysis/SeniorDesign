@@ -5,7 +5,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    gap: 1.4px;
+    gap: 4px;
     align-self: stretch;
     border-radius: 8px;
     border: 1px solid var(--slate-200, #E2E8F0);
