@@ -36,6 +36,9 @@ import HelpRequestPost from "./components/HelpRequestPost";
 import "./App.css";
 import supabase from "./supabase-client";
 import TableSkeetTable from "./components/posts_table/ExtractedInfoTable";
+import LocationCount from "./components/LocationCount/LocationCount";
+import { MapContainer, TileLayer } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import AuthorAnalysis from "./components/AuthorAnalysis";
 import DisasterTypeCount from "./components/DisasterTypeCount";
 import LocationCount from "./components/LocationAnalysis";
@@ -63,13 +66,15 @@ function App() {
   const [posts, setPosts] = useState<Row[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [showHelpList, setShowHelpList] = useState(false); // ← NEW
+  const [showHelpList, setShowHelpList] = useState(false); // ← default help request toggle
 
   const today = new Date();
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(today.getFullYear() - 1); // 1 year ago
+  //const oneYearAgo = new Date();
+  const twoWeeksAgo = new Date(today);
+  twoWeeksAgo.setDate(today.getDate() - 14);   // 14 days ago
+  //oneYearAgo.setFullYear(today.getFullYear() - 1); // 1 year ago
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: oneYearAgo, // 00:00 on the same day last year
+    from: twoWeeksAgo, // 00:00 on the same day 2 weeks ago
     to: today, // 00:00 today (inclusive for your ≤ test)
   });
 
@@ -100,6 +105,17 @@ function App() {
     return visibleMapPoints.filter((p) => p.help_request); // already filtered above, but keeps the intent explicit
   }, [visibleMapPoints, showHelpList]);
 
+  {/*const locationSummary = useMemo(() => {
+  const counts: Record<string, number> = {};
+  visibleMapPoints.forEach((p) => {
+    const key = p.location_mentioned ?? 'Unknown';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts)
+    .map(([locationType, count]) => ({ locationType, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);          // top-10
+  }, [visibleMapPoints]);*/}
   const authorStats = useMemo(() => {
     // Count posts per author
     const authorCounts: Record<string, number> = {};
@@ -157,13 +173,23 @@ function App() {
       .sort((a, b) => b.count - a.count);
   }, [posts]);
 
+  const locationSummary = useMemo(() => {
+  const counts: Record<string, number> = {};
+  visibleMapPoints.forEach((p) => {
+    const key = p.location_mentioned ?? 'Unknown';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts)
+    .map(([locationType, count]) => ({ locationType, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);          // top-10
+  }, [visibleMapPoints]);
+
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error, count } = await supabase
-        //.from("FE2-extracted_info_output_duplicate")
         .from("be_extracted_info_output")
-        .select("*", { count: "exact" }) // ← see how many rows exist
-        .limit(3000);
+        .select("*", { count: "exact" }); // ← see how many rows exist
 
       console.log("Supabase answer:", { data, error, count });
       if (error) {
@@ -323,13 +349,21 @@ function App() {
           </CardAction>
         </CardHeader>
         <CardContent className="DPITUSContainer">
-          <div>
-            <HeatMap posts={visibleMapPoints} />
-          </div>
+          {/*<CountMap posts={visibleMapPoints} />*/}
+
+          <MapContainer
+              center={[39.8, -98.5]}
+              zoom={4}
+              className="w-full h-full"
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <CountMap posts={visibleMapPoints} />
+          </MapContainer>
+
           {showHelpList && (
             <Card className="w-full max-w-sm HelpRequestPosts">
               <div className="card-header">
-                <p className="card-header-text">At a Glance</p>
+                <p className="card-header-text">Help Requests</p>
               </div>
               <div className="frame-clip-content max-h-[473px] w-[377px] overflow-y-auto overflow-x-hidden scrollbar-none">
                 <div className="frame-posts">
@@ -357,6 +391,13 @@ function App() {
               </div>
             </Card>
           )}
+
+          {!showHelpList && (
+            <div className="w-full max-w-sm TopLocations">
+              <LocationCount disasterData={locationSummary} />
+            </div>
+          )}
+          
         </CardContent>
         {/*  */}
         {/* Bottom section: Disaster Type and Author Analysis side by side */}
@@ -385,6 +426,15 @@ function App() {
                 </p>
               )}
             </div>
+  
+          {!showHelpList && (
+            <div className="w-full max-w-sm TopLocations">
+              <LocationCount disasterData={locationSummary} />
+            </div>
+          )}
+        </CardContent>
+      </Card> 
+      <TableSkeetTable />
 
             {/* Right: Author Analysis */}
             <div>
