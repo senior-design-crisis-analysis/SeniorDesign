@@ -13,7 +13,7 @@ import "leaflet.heat";
 import type { DisasterRow } from "./DisasterRow";
 import HelpRequestPost from "./HelpRequestPost";
 
-// ✅ Extend leaflet module to properly type heatLayer
+// Extend leaflet module to properly type heatLayer
 declare module "leaflet" {
   function heatLayer(
     latlngs: Array<[number, number, number?]>,
@@ -28,7 +28,7 @@ declare module "leaflet" {
   ): L.Layer;
 }
 
-// ✅ Colors and weights
+// Disaster colors & severity weights
 const disasterColors: Record<string, string> = {
   fire: "#ef4444",
   shooting: "#000000",
@@ -48,7 +48,7 @@ const severityWeights: Record<string, number> = {
   high: 1.0,
 };
 
-// 🔥 Heat layer
+// Heat layer component
 function HeatLayer({ points }: { points: DisasterRow[] }) {
   const map = useMap();
   const layerRef = useRef<L.Layer>();
@@ -92,7 +92,7 @@ function HeatLayer({ points }: { points: DisasterRow[] }) {
   return null;
 }
 
-// 🌎 Legend component (just UI below map)
+// Legend component
 function Legend() {
   return (
     <div
@@ -100,19 +100,9 @@ function Legend() {
       style={{ fontSize: "14px" }}
     >
       <strong>Disaster Types</strong>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "4px",
-          marginTop: 0,
-        }}
-      >
+      <div className="flex flex-wrap gap-1 mt-1">
         {Object.entries(disasterColors).map(([key, color]) => (
-          <div
-            key={key}
-            style={{ display: "flex", alignItems: "center", gap: "1.5px" }}
-          >
+          <div key={key} className="flex items-center">
             <span
               style={{
                 background: color,
@@ -126,14 +116,11 @@ function Legend() {
           </div>
         ))}
       </div>
-
-      <hr style={{ margin: "4px 0" }} />
+      <hr className="my-1" />
       <strong>Heatmap = Severity × Confidence</strong>
       <div
+        className="mt-1 h-2 w-full"
         style={{
-          marginTop: 2,
-          height: 8,
-          width: "100%",
           background:
             "linear-gradient(to right, blue, cyan, lime, yellow, red)",
         }}
@@ -142,29 +129,16 @@ function Legend() {
   );
 }
 
-// 🌎 Main Component
+// Main HeatMap component
 export default function HeatMap({ posts }: { posts: DisasterRow[] }) {
   const [showMarkers, setShowMarkers] = useState(true);
 
   return (
     <div className="flex flex-col items-center relative">
       <div style={{ position: "relative", width: 650, height: 500 }}>
-        {/* Toggle Button in top-right */}
         <button
           onClick={() => setShowMarkers((prev) => !prev)}
-          style={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            zIndex: 1000,
-            background: "white",
-            border: "1px solid #d1d5db",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            borderRadius: 6,
-            padding: "4px 8px",
-            fontSize: "0.875rem",
-            cursor: "pointer",
-          }}
+          className="absolute top-2 right-2 z-10000 bg-white border border-gray-300 shadow-sm rounded-md px-2 py-1 text-sm"
         >
           {showMarkers ? "Hide Markers" : "Show Markers"}
         </button>
@@ -197,38 +171,41 @@ export default function HeatMap({ posts }: { posts: DisasterRow[] }) {
                   fillOpacity={0.7}
                   weight={2}
                 >
+                  {/* Tooltip shows on hover */}
                   <Tooltip sticky>
-                    {r.disaster_type
-                      .slice(0)
+                    {(r.disaster_type ?? "Unknown")
                       .replace("_", " ")
                       .replace(/\b\w/g, (l) => l.toUpperCase())}{" "}
                     –{" "}
-                    {r.severity_level
-                      .slice(0)
+                    {(r.severity_level ?? "Unknown")
                       .replace("_", " ")
-                      .replace(/\b\w/g, (l) => l.toUpperCase()) ??
-                      "unknown"}{" "}
+                      .replace(/\b\w/g, (l) => l.toUpperCase())}{" "}
                     Severity
                   </Tooltip>
+
+                  {/* Floating HelpRequestPost popup */}
                   <Popup
                     closeButton={false}
-                    className="custom-popup-transparent"
-                    autoPan={true}
+                    className="custom-popup-floating"
+                    offset={[0, -10]}
                   >
                     <style>
                       {`
-      .custom-popup-transparent .leaflet-popup-content-wrapper {
-        background: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-      }
-      .custom-popup-transparent .leaflet-popup-tip {
-        display: none !important;
-      }
-    `}
+        .custom-popup-floating .leaflet-popup-content-wrapper {
+          background: transparent !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+        }
+        .custom-popup-floating .leaflet-popup-tip {
+          display: none !important;
+        }
+        .custom-popup-floating {
+          transform: translateY(-10px);
+        }
+      `}
                     </style>
 
-                    <div className="items-center justify-center align-middle">
+                    <div className="flex items-center justify-center align-middle">
                       <HelpRequestPost
                         data={{
                           handle: r.author ?? "Anonymous",
@@ -246,7 +223,6 @@ export default function HeatMap({ posts }: { posts: DisasterRow[] }) {
         </MapContainer>
       </div>
 
-      {/* Legend under the map */}
       <Legend />
     </div>
   );

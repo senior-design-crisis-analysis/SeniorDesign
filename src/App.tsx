@@ -322,14 +322,14 @@ function App() {
             </div>
           </CardAction>
         </CardHeader>
-        <CardContent className="DPITUSContainer">
+        <CardContent className="DPITUSContainer mb-4">
           <div>
             <HeatMap posts={visibleMapPoints} />
           </div>
           {showHelpList && (
             <Card className="w-full max-w-sm HelpRequestPosts">
               <div className="card-header">
-                <p className="card-header-text">At a Glance</p>
+                <p className="card-header-text">Help Requests</p>
               </div>
               <div className="frame-clip-content max-h-[473px] w-[377px] overflow-y-auto overflow-x-hidden scrollbar-none">
                 <div className="frame-posts">
@@ -363,9 +363,15 @@ function App() {
       </Card>
       <TableSkeetTable />
 
-      <Card>
+      <div
+        className=" text-left py-0"
+        style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
+      >
+        Data Analysis
+      </div>
+      <Card className="mt-2">
         <CardContent>
-          <div className="mt-6 grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               {locationStats.length > 0 ? (
                 <LocationCount locationData={locationStats} />
