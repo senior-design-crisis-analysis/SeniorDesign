@@ -85,6 +85,7 @@ export const columns: ColumnDef<TableSkeet>[] = [
         </Badge>
       );
     },
+    size: 100,
   },
   {
     accessorKey: "severity_level",
@@ -115,6 +116,7 @@ export const columns: ColumnDef<TableSkeet>[] = [
         </Badge>
       );
     },
+    size: 100,
   },
   {
     accessorKey: "location_mentioned",
@@ -130,9 +132,10 @@ export const columns: ColumnDef<TableSkeet>[] = [
         <ArrowUpDown className="ml-0 h-4 w-4 text-slate-500" />
       </Button>
     ),
+    size: 200,
   },
   {
-    accessorKey: "created_at",
+    accessorKey: "indexed_at",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -146,7 +149,7 @@ export const columns: ColumnDef<TableSkeet>[] = [
     ),
 
     cell: ({ row }) => {
-      const timestamp = row.getValue("created_at") as string;
+      const timestamp = row.getValue("indexed_at") as string;
       const date = new Date(timestamp);
       const readable = date.toLocaleString("en-US", {
         timeZone: "America/Chicago",
@@ -204,10 +207,11 @@ export const columns: ColumnDef<TableSkeet>[] = [
 
       return true;
     },
+    size: 200,
   },
 
   {
-    accessorKey: "help_req",
+    accessorKey: "help_request",
     header: () => (
       <span style={{ color: "#64748B", fontWeight: 400, fontSize: "14px" }}>
         Help Requested
@@ -218,12 +222,12 @@ export const columns: ColumnDef<TableSkeet>[] = [
         <Badge
           className="rounded-full w-[22px] h-[22px] flex items-center justify-center"
           style={
-            row.getValue("help_req")
+            row.getValue("help_request")
               ? { backgroundColor: "red" }
               : { backgroundColor: "#C0C0C0" }
           }
         >
-          {row.getValue("help_req") ? (
+          {row.getValue("help_request") ? (
             <AlertCircle
               color="white"
               fill="red"
@@ -239,7 +243,8 @@ export const columns: ColumnDef<TableSkeet>[] = [
         </Badge>
       </div>
     ),
-    /*cell: ({ row }) => <div className="flex justify-center items-center">{row.getValue("help_req") ? <Hand className="w-6 h-6 text-red-700" /> : <Hand className="w-6 h-6 text-slate-400" />}</div>,*/
+    /*cell: ({ row }) => <div className="flex justify-center items-center">{row.getValue("help_request") ? <Hand className="w-6 h-6 text-red-700" /> : <Hand className="w-6 h-6 text-slate-400" />}</div>,*/
+    size: 100,
   },
   {
     accessorKey: "author",
@@ -254,5 +259,6 @@ export const columns: ColumnDef<TableSkeet>[] = [
         <ArrowUpDown className="ml-0 h-4 w-4 text-slate-500" />
       </Button>
     ),
+    size: 200,
   },
 ];

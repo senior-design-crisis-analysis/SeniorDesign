@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { DisasterEnum, SeverityEnum } from "./enumTypes";
-import CountMap from "./components/CountMap";
+import HeatMap from "./components/HeatMap";
+
 import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert";
 import {
   Card,
@@ -40,6 +41,7 @@ import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import AuthorAnalysis from "./components/AuthorAnalysis";
 import DisasterTypeCount from "./components/DisasterTypeCount";
+import LocationCount from "./components/LocationAnalysis";
 
 type Row = {
   uri: string;
@@ -115,30 +117,53 @@ function App() {
     .slice(0, 10);          // top-10
   }, [visibleMapPoints]);*/}
   const authorStats = useMemo(() => {
-  // Count posts per author
-  const authorCounts: Record<string, number> = {};
-  
-  posts.forEach(post => {
-    if (post.author) {
-      authorCounts[post.author] = (authorCounts[post.author] || 0) + 1;
-    }
-  });
+    // Count posts per author
+    const authorCounts: Record<string, number> = {};
 
-  // ADDED NOV.4 BY JASZ
-  // Convert to array and filter for authors with 10+ posts
-  return Object.entries(authorCounts)
-    .map(([author, postCount]) => ({ author, postCount }))
-    .filter(author => author.postCount >= 10)
-    .sort((a, b) => b.postCount - a.postCount); // Sort descending
+    posts.forEach((post) => {
+      if (post.author) {
+        authorCounts[post.author] = (authorCounts[post.author] || 0) + 1;
+      }
+    });
+
+    // ADDED NOV.4 BY JASZ
+    // Convert to array and filter for authors with 10+ posts
+    return Object.entries(authorCounts)
+      .map(([author, postCount]) => ({ author, postCount }))
+      .filter((author) => author.postCount >= 10)
+      .sort((a, b) => b.postCount - a.postCount); // Sort descending
+  }, [posts]);
+
+  const locationStats = useMemo(() => {
+    const locationCounts: Record<string, number> = {};
+
+    posts.forEach((post) => {
+      const locRaw = post.location_mentioned;
+      if (
+        locRaw && // not null or undefined
+        locRaw.trim() !== "" && // not empty
+        locRaw.trim().toLowerCase() !== "null" // not the string "null"
+      ) {
+        const loc = locRaw.trim().toLowerCase();
+        locationCounts[loc] = (locationCounts[loc] || 0) + 1;
+      }
+    });
+
+    return Object.entries(locationCounts)
+      .map(([location, count]) => ({ location, count }))
+      .filter((loc) => loc.count >= 5) // show only locations with ≥5 mentions
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
   }, [posts]);
 
   // ADDED NOV.4 BY JASZ
   const disasterStats = useMemo(() => {
     const disasterCounts: Record<string, number> = {};
-  
-    posts.forEach(post => {
+
+    posts.forEach((post) => {
       if (post.disaster_type) {
-        disasterCounts[post.disaster_type] = (disasterCounts[post.disaster_type] || 0) + 1;
+        disasterCounts[post.disaster_type] =
+          (disasterCounts[post.disaster_type] || 0) + 1;
       }
     });
 
@@ -202,18 +227,21 @@ function App() {
   return (
     <div>
       <div
-        className="text-left px-2 py-2"
+        className="text-left px-2 py-6 gap-6"
         style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
       >
         Disaster Post Analysis Dashboard
       </div>
-      <Card className="w-full container DisasterPostsintheUnitedStates">
+      <Card className="w-full mb-8 container DisasterPostsintheUnitedStates">
         <CardHeader>
-          <CardTitle className="text-left">
+          <CardTitle
+            className="text-left"
+            style={{ color: "#020617", fontSize: "18px", fontWeight: 600 }}
+          >
             Disaster Posts in the United States
           </CardTitle>
           <CardDescription className="text-left">
-            Count of disaster posts on Bluesky
+            Showing {visibleMapPoints.length} posts from Bluesky
           </CardDescription>
           <CardAction>
             <div className="flex items-center space-x-2">
@@ -232,6 +260,7 @@ function App() {
                       variant="outline"
                       id="date"
                       className="bg-white w-56 justify-between font-normal"
+                      style={{ zIndex: 9999 }}
                     >
                       {dateRange?.from && dateRange?.to
                         ? `${formatDate(dateRange.from)} - ${formatDate(
@@ -245,6 +274,7 @@ function App() {
                   <PopoverContent
                     className="w-auto overflow-hidden p-0"
                     align="start"
+                    style={{ zIndex: 9999 }}
                   >
                     <Calendar
                       mode="range"
@@ -265,10 +295,10 @@ function App() {
                   setSeverity(v === "all" ? undefined : (v as SeverityEnum))
                 }
               >
-                <SelectTrigger className="w-[170px]">
+                <SelectTrigger className="w-[170px]" style={{ zIndex: 9999 }}>
                   <SelectValue placeholder="Severity Level" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent style={{ zIndex: 9999 }}>
                   <SelectGroup>
                     <SelectItem value="all">All Severities</SelectItem>
                     <SelectItem value="high">High</SelectItem>
@@ -284,10 +314,10 @@ function App() {
                   setDisaster(v === "all" ? undefined : (v as DisasterEnum))
                 }
               >
-                <SelectTrigger className="w-[170px]">
+                <SelectTrigger className="w-[170px]" style={{ zIndex: 9999 }}>
                   <SelectValue placeholder="All Disasters" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent style={{ zIndex: 9999 }}>
                   <SelectGroup>
                     <SelectItem value="all">All Disasters</SelectItem>
                     <SelectItem value="auto_accident">Auto Accident</SelectItem>
@@ -369,32 +399,32 @@ function App() {
           )}
           
         </CardContent>
-
         {/*  */}
         {/* Bottom section: Disaster Type and Author Analysis side by side */}
-          <CardContent>
-            <div className="mt-6 grid grid-cols-2 gap-6">
-              {/* Left: Disaster Type Count */}
-              <div>
-                {disasterStats.length > 0 ? (
-                  <DisasterTypeCount disasterData={disasterStats} />
-                ) : (
-                  <p className="text-center text-slate-500 py-8">
-                    No disaster type data available.
-                  </p>
-                )}
-              </div>
+      </Card>
+      <TableSkeetTable />
 
-              {/* Right: Author Analysis */}
-              <div>
-                {authorStats.length > 0 ? (
-                  <AuthorAnalysis authorData={authorStats} />
-                ) : (
-                  <p className="text-center text-slate-500 py-8">
-                    No authors with 10+ posts in the current dataset.
-                  </p>
-                )}
-              </div>
+      <Card>
+        <CardContent>
+          <div className="mt-6 grid grid-cols-3 gap-6">
+            <div>
+              {locationStats.length > 0 ? (
+                <LocationCount locationData={locationStats} />
+              ) : (
+                <p className="text-center text-slate-500 py-8">
+                  No disaster type data available.
+                </p>
+              )}
+            </div>
+            {/* Left: Disaster Type Count */}
+            <div>
+              {disasterStats.length > 0 ? (
+                <DisasterTypeCount disasterData={disasterStats} />
+              ) : (
+                <p className="text-center text-slate-500 py-8">
+                  No disaster type data available.
+                </p>
+              )}
             </div>
   
           {!showHelpList && (
@@ -406,6 +436,19 @@ function App() {
       </Card> 
       <TableSkeetTable />
 
+            {/* Right: Author Analysis */}
+            <div>
+              {authorStats.length > 0 ? (
+                <AuthorAnalysis authorData={authorStats} />
+              ) : (
+                <p className="text-center text-slate-500 py-8">
+                  No authors with 10+ posts in the current dataset.
+                </p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

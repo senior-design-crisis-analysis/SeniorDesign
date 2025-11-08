@@ -69,10 +69,9 @@ export default function TableSkeetTable() {
     const fetchData = async () => {
       setLoading(true);
       const { data, error } = await supabase
-        // .from("SZ-extracted_info_output_duplicate")
         .from("be_extracted_info_output")
         .select("*")
-        .limit(100);
+        .limit(10000);
 
       if (error) console.error(error);
       else setData(data || []);
@@ -84,7 +83,9 @@ export default function TableSkeetTable() {
 
   //useEffects to toggle filter for help requests only
   React.useEffect(() => {
-    table.getColumn("help_req")?.setFilterValue(helpOnly ? true : undefined);
+    table
+      .getColumn("help_request")
+      ?.setFilterValue(helpOnly ? true : undefined);
   }, [helpOnly]);
 
   //handle tooltip to open link in new tab on click
@@ -118,7 +119,7 @@ export default function TableSkeetTable() {
 
   //useEffect to filter posted date range
   React.useEffect(() => {
-    const column = table.getColumn("created_at");
+    const column = table.getColumn("indexed_at");
     if (dateRange?.from || dateRange?.to) {
       column?.setFilterValue(dateRange);
     } else {

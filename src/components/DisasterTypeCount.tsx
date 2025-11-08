@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { TrendingUp } from "lucide-react"
-
+import { useState, useRef } from "react";
+import { PieChart } from "react-minimal-pie-chart";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
+import { sl } from "date-fns/locale";
 
 type DisasterCount = {
   disasterType: string;
@@ -20,84 +20,110 @@ type Props = {
   disasterData: DisasterCount[];
 };
 
-const DisasterTypeCount = ({ disasterData }: Props) => {
-  const formatDisasterName = (name: string) => {
-    return name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  };
+const DisasterTypePieChart = ({ disasterData }: Props) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const chartRef = useRef<HTMLDivElement>(null);
 
   const total = disasterData.reduce((sum, item) => sum + item.count, 0);
-  const maxCount = Math.max(...disasterData.map(item => item.count), 1);
+
+  const baseColors = [
+    "rgba(0, 0, 0, 1)",
+    "rgba(25, 31, 46, 1)",
+    "rgba(41, 48, 62, 1)",
+    "rgba(55, 62, 76, 1)",
+    "rgba(82, 89, 102, 1)",
+    "rgba(103, 110, 123, 1)",
+    "rgba(124, 132, 144, 1)",
+    "rgba(154, 163, 174, 1)",
+    "rgba(178, 188, 198, 1)",
+    "rgba(206, 216, 226, 1)",
+    "rgba(235, 245, 255, 1)",
+  ];
+
+  // Darken the lightest colors for better visibility
+  const chartColors = baseColors.map((color, i) => {
+    return color;
+  });
+
+  const data = disasterData.map((item, index) => ({
+    title: item.disasterType,
+    value: item.count,
+    color: chartColors[index % chartColors.length],
+  }));
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Disaster Type Distribution</CardTitle>
-        <CardDescription>Breakdown of {total} posts by disaster type</CardDescription>
+        <CardDescription>
+          Breakdown of the most common disaster types
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {disasterData.map((item, index) => {
-            const percentage = (item.count / maxCount) * 100;
-            const chartColors = [
-              "hsl(222.2 84% 4.9%)", 
-              "hsl(222.2 47.4% 11.2%)", 
-              "hsl(217.2 32.6% 17.5%)",
-              "hsl(215.3 25% 26.7%)",  
-              "hsl(215.3 19.3% 34.5%)", 
-              "hsl(215.4 16.3% 46.9%)",
-              "hsl(215 20.2% 65.1%)",
-              "hsl(212.7 26.8% 83.9%)",
-              "hsl(214.3 31.8% 91.4%)",
-              "hsl(210 40% 96.1%)",
-              "hsl(210 40% 98%)",
-            ];
-            const color = chartColors[index % chartColors.length];
-
-            return (
-              <div key={item.disasterType} className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-[150px]">
-                  <div 
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: color }}
-                  />
-                  <span className="text-sm font-medium">
-                    {formatDisasterName(item.disasterType)}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 flex-1 max-w-md">
-                  <div className="flex-1 bg-secondary rounded-full h-2 overflow-hidden">
-                    <div 
-                      className="h-2 rounded-full transition-all duration-500"
-                      style={{ 
-                        width: `${percentage}%`,
-                        backgroundColor: color
-                      }}
-                    />
-                  </div>
-                  <div className="flex items-center gap-2 min-w-[80px] justify-end">
-                    <span className="text-sm font-semibold tabular-nums">
-                      {item.count}
-                    </span>
-                    <span className="text-xs text-muted-foreground tabular-nums w-12 text-right">
-                      ({((item.count / total) * 100).toFixed(1)}%)
-                    </span>
-                  </div>
-                </div>
+      <CardContent className="flex justify-center items-center relative">
+        <div
+          ref={chartRef}
+          className="relative"
+          onMouseMove={(e) => {
+            const rect = chartRef.current?.getBoundingClientRect();
+            if (rect) {
+              setTooltipPos({
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top,
+              });
+            }
+          }}
+        >
+          <PieChart
+            data={data}
+            lineWidth={100} // full solid circle
+            animate
+            label={() => ""} // remove default labels
+            onMouseOver={(_, index) => setHoveredIndex(index)}
+            onMouseOut={() => setHoveredIndex(null)}
+          />
+          {hoveredIndex !== null && (
+            <div
+              className="absolute bg-background border rounded-lg px-3 py-2 shadow-xl z-20 min-w-[120px] text-center whitespace-nowrap pointer-events-none transition-opacity duration-100"
+              style={{
+                left: tooltipPos.x,
+                top: tooltipPos.y - 15, // offset above cursor
+                transform: "translate(-30%, -100%)",
+              }}
+            >
+              <div className="font-bold text-lg tabular-nums text-foreground mb-1">
+                {data[hoveredIndex].title
+                  .slice(0)
+                  .replace("_", " ")
+                  .replace(/\b\w/g, (l) => l.toUpperCase())}
               </div>
-            );
-          })}
+              <div className="text-xs text-muted-foreground border-t pt-1">
+                {((data[hoveredIndex].value / total) * 100).toFixed(1)}% |{" "}
+                {data[hoveredIndex].value} posts
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
-      {/* <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Total of {total} disaster posts <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="text-muted-foreground leading-none">
-          Showing distribution across different disaster types
-        </div>
-      </CardFooter> */}
+
+      <div className="flex flex-wrap justify-center gap-2 mt-2">
+        {data.map((item) => (
+          <div key={item.title} className="flex items-center gap-1 text-xs">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: item.color }}
+            />
+            <span className="whitespace-nowrap">
+              {item.title
+                .slice(0)
+                .replace("_", " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase())}
+            </span>
+          </div>
+        ))}
+      </div>
     </Card>
   );
 };
 
-export default DisasterTypeCount;
+export default DisasterTypePieChart;
