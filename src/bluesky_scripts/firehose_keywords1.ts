@@ -52,8 +52,8 @@ async function startFirehose() {
     ws: WebSocket,
   });
 
-  // ⏱️ Run for 7 minutes for testing
-  const RUN_DURATION = 7 * 60 * 1000;
+  // ⏱️ Run for 5 hours
+  const RUN_DURATION = 5 * 60 * 60 * 1000; // 5 hours
   setTimeout(() => {
     console.log("\n⏰ Time limit reached — shutting down...");
     console.log(`📊 Total posts collected: ${collectedPosts}`);

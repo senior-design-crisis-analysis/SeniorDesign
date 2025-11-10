@@ -59,8 +59,8 @@ async function startFirehose() {
     ws: WebSocket,
   });
 
-  // ⏱️ Run for 7 minutes for testing
-  const RUN_DURATION = 7 * 60 * 1000;
+  // ⏱️ Run for 5 hours
+  const RUN_DURATION = 5 * 60 * 60 * 1000; // 5 hours
   setTimeout(() => {
     console.log("\n⏰ Time limit reached — shutting down...");
     console.log(`📊 Total posts collected: ${collectedPosts}`);
@@ -68,11 +68,6 @@ async function startFirehose() {
   }, RUN_DURATION);
 
   jetstream.on("commit", async (event: any) => {
-    if (collectedPosts >= CONFIG.MAX_POSTS) {
-      console.log(`✅ Reached ${CONFIG.MAX_POSTS} posts — stopping.`);
-      jetstream.close();
-      process.exit(0);
-    }
 
     if (event.commit.collection !== "app.bsky.feed.post") return;
     const record = event.commit.record;

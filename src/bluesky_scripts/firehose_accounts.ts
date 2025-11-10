@@ -67,12 +67,17 @@ async function startFirehose() {
     ws: WebSocket,
   });
 
+  // ⏱️ Stop automatically after 5 hours (in milliseconds)
+  const RUN_DURATION = 5 * 60 * 60 * 1000; // 5 hours
+
+  setTimeout(() => {
+    console.log('⏰ Time limit reached — stopping firehose...');
+    jetstream.close();
+    console.log(`📊 Total posts collected: ${collectedPosts}`);
+    process.exit(0);
+  }, RUN_DURATION);
+
   jetstream.on('commit', async (event: any) => {
-    if (collectedPosts >= CONFIG.MAX_POSTS) {
-      console.log(`✅ Reached ${CONFIG.MAX_POSTS} posts, stopping.`);
-      jetstream.close();
-      process.exit(0);
-    }
 
     if (event.commit.collection !== 'app.bsky.feed.post') return;
     if (!trackedDIDs.has(event.did)) return; // Only track specific accounts
@@ -102,7 +107,6 @@ async function startFirehose() {
       author: authorHandle,
       text: text,
       indexed_at: record.createdAt,
-      source: 'accounts',  // helpful for identifying which script wrote it
     };
 
     const { error } = await supabase
