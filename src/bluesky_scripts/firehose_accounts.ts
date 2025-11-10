@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { BskyAgent } from "@atproto/api";
 import dotenv from 'dotenv';
 import WebSocket from "ws";
+import { error } from 'console';
 dotenv.config();
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -72,7 +73,7 @@ async function startFirehose() {
   });
   
     // ⏱️ Automatically stop after 5 hours
-  const RUN_DURATION = 5 * 60 * 60 * 1000; // 5 hours in ms
+const RUN_DURATION = 7 * 60 * 1000; // 7 minutes in ms
   setTimeout(async () => {
     console.log("\n⏰ Time limit reached — saving cursor and shutting down...");
     await saveCursor(lastSeq);
@@ -82,6 +83,8 @@ async function startFirehose() {
 
   jetstream.on('commit', async (event: any) => {
     lastSeq = event.commit.seq;
+    console.log("🧩 Received commit:", event.commit.collection);
+
 
     if (event.commit.collection !== 'app.bsky.feed.post') return;
     if (!isTrackedAccount(event.did, CONFIG.TRACKED_ACCOUNTS)) return;
@@ -99,6 +102,10 @@ async function startFirehose() {
     const { error } = await supabase
       .from('be_posts_input')
       .upsert(postData, { onConflict: 'uri' });
+
+      if (error) {
+        console.error("❌ Insert error:", error.message);
+      }
 
     if (!error) collectedPosts++;
   });

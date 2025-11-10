@@ -100,6 +100,8 @@ async function startFirehose() {
 
   jetstream.on("commit", async (event: any) => {
   lastSeq = event.commit.seq;
+  console.log("🧩 Received commit:", event.commit.collection);
+
 
   if (event.commit.collection !== "app.bsky.feed.post") return;
 
@@ -122,6 +124,9 @@ async function startFirehose() {
       .from("be_posts_input")
       .upsert(replyData, { onConflict: "uri" });
 
+      if (error) {
+        console.error("❌ Insert error:", error.message);
+      }
     if (!error) {
       collectedPosts++;
       if (collectedPosts % 100 === 0) {
@@ -146,6 +151,10 @@ async function startFirehose() {
   const { error } = await supabase
     .from("be_posts_input")
     .upsert(postData, { onConflict: "uri" });
+
+    if (error) {
+      console.error("❌ Insert error:", error.message);
+    } 
 
   if (!error) {
     collectedPosts++;
