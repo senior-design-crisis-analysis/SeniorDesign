@@ -132,12 +132,6 @@ async function startFirehose() {
 
   jetstream.start();
 
-  // Stop after 7 minutes (testing mode)
-  setTimeout(() => {
-    console.log(`⏱️ Stopping after 7 minutes. Total posts: ${collectedPosts}`);
-    jetstream.close();
-    process.exit(0);
-  }, 7 * 60 * 1000);
 }
 
 // --- Start ---
