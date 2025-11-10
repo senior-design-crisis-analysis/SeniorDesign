@@ -15,22 +15,25 @@ const CONFIG = {
   SUPABASE_URL: process.env.SUPABASE_URL!,
   SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
   KEYWORDS: [
-    // traffic & accidents 'traffic accident', 'road closed', 'car crash', 'multi-vehicle', 'pileup', 'major crash', 'traffic backed up', 'intersection blocked', 'vehicle collision', 'freeway crash', 'highway crash', 'road closure', 'lane blocked', 'intersection closed', 'pedestrian struck', // weather & natural disasters 'storm damage', 'flooding', 'hailstorm', 'mudslide', 'tornado warning', 'evacuation order', 'extreme heat', 'cold front', 'severe weather alert', 'flash flood warning', 'earthquake', 'hurricane', 'tornado', 'severe thunderstorm', 'blizzard', 'winter storm', 'tsunami warning', 'volcanic eruption', 'landslide', 'drought conditions', 'storm damage', 'evacuation order', 'state of emergency', 'tropical storm', 'seismic activity', 'richter magnitude', 'aftershock', 'epicenter', 'downed power lines', 'thunderstorm warning', 'severe thunder', 'thunderstorm watch', 'record winds',
-    'traffic accident', 'road closed', 'car crash', 'multi-vehicle', 'pileup',
-    'major crash', 'traffic backed up', 'intersection blocked', 'vehicle collision',
-    'freeway crash', 'highway crash', 'road closure', 'lane blocked', 'intersection closed',
-    'pedestrian struck',
+    // traffic & accidents
+    "traffic accident", "road closed", "car crash", "multi-vehicle", "pileup",
+    "major crash", "traffic backed up", "intersection blocked", "vehicle collision",
+    "freeway crash", "highway crash", "road closure", "lane blocked",
+    "intersection closed", "pedestrian struck",
     // weather & natural disasters
-    'storm damage', 'flooding', 'hailstorm', 'mudslide', 'tornado warning',
-    'evacuation order', 'extreme heat', 'cold front', 'severe weather alert',
-    'flash flood warning', 'earthquake', 'hurricane', 'tornado', 'severe thunderstorm',
-    'blizzard', 'winter storm', 'tsunami warning', 'volcanic eruption', 'landslide',
-    'drought conditions', 'storm damage', 'evacuation order', 'state of emergency',
-    'tropical storm', 'seismic activity', 'richter magnitude', 'aftershock',
-    'epicenter', 'downed power lines', 'thunderstorm warning', 'severe thunder',
-    'thunderstorm watch', 'record winds',
+    "storm damage", "flooding", "hailstorm", "mudslide", "tornado warning",
+    "evacuation order", "extreme heat", "cold front", "severe weather alert",
+    "flash flood warning", "earthquake", "hurricane", "tornado",
+    "severe thunderstorm", "blizzard", "winter storm", "tsunami warning",
+    "volcanic eruption", "landslide", "drought conditions", "state of emergency",
+    "tropical storm", "seismic activity", "richter magnitude", "aftershock",
+    "epicenter", "downed power lines", "thunderstorm warning", "severe thunder",
+    "thunderstorm watch", "record winds",
   ],
   MAX_POSTS: 10000,
+  RUN_DURATION: 5 * 60 * 60 * 1000, // 5 hours
+  MAX_RETRIES: 5,
+  RETRY_DELAY: 15 * 1000, // 15 seconds
 };
 
 const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
@@ -42,23 +45,24 @@ function containsKeyword(text: string): boolean {
   return CONFIG.KEYWORDS.some((kw) => lower.includes(kw));
 }
 
-async function startFirehose() {
-  console.log("🚀 Starting Keyword Firehose...");
+async function startFirehose(retryCount = 0) {
+  console.log(`🚀 Starting Keyword Firehose (attempt ${retryCount + 1})...`);
   console.log(`📊 Collecting up to ${CONFIG.MAX_POSTS} posts`);
   console.log(`🔑 Keywords: ${CONFIG.KEYWORDS.length}`);
 
   const jetstream = new Jetstream({
     wantedCollections: ["app.bsky.feed.post"],
     ws: WebSocket,
+    timeout: 60000, // ⏱️ Give the connection up to 60s to establish
   });
 
-  // ⏱️ Run for 5 hours
-  const RUN_DURATION = 5 * 60 * 60 * 1000; // 5 hours
+  // Stop after configured duration
   setTimeout(() => {
     console.log("\n⏰ Time limit reached — shutting down...");
     console.log(`📊 Total posts collected: ${collectedPosts}`);
+    jetstream.close();
     process.exit(0);
-  }, RUN_DURATION);
+  }, CONFIG.RUN_DURATION);
 
   jetstream.on("commit", async (event: any) => {
     if (collectedPosts >= CONFIG.MAX_POSTS) {
@@ -82,9 +86,7 @@ async function startFirehose() {
       indexed_at: record.createdAt,
     };
 
-    const { error } = await supabase
-      .from("be_posts_input")
-      .insert(postData);
+    const { error } = await supabase.from("be_posts_input").insert(postData);
 
     if (error) {
       if (error.code !== "23505") {
@@ -99,8 +101,17 @@ async function startFirehose() {
     }
   });
 
-  jetstream.on("error", (err: Error) => {
-    console.error("❌ Jetstream error:", err);
+  jetstream.on("error", async (err: Error) => {
+    console.error("❌ Jetstream error:", err.message);
+    jetstream.close();
+
+    if (retryCount < CONFIG.MAX_RETRIES) {
+      console.log(`⏳ Retrying in ${CONFIG.RETRY_DELAY / 1000}s...`);
+      setTimeout(() => startFirehose(retryCount + 1), CONFIG.RETRY_DELAY);
+    } else {
+      console.error("❌ Max retries reached — exiting.");
+      process.exit(1);
+    }
   });
 
   jetstream.on("close", () => {
