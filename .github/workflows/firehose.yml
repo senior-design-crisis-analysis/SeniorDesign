@@ -40,7 +40,7 @@ jobs:
         run: npx tsx src/bluesky_scripts/firehose_keywords.ts
 
   firehose-keywords1:
-    name: Run Firehose (Keywords)
+    name: Run Firehose (Keywords) 1
     runs-on: ubuntu-latest
 
     steps:

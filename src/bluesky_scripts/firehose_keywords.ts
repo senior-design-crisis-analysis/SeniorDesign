@@ -13,7 +13,6 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
 const CONFIG = {
   SUPABASE_URL: process.env.SUPABASE_URL!,
   SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  MAX_POSTS: 10000,
   KEYWORDS: [
   // fires
   'fire department', 'brush fire', 'apartment fire', 'fire crews', 'wildfire smoke',
@@ -36,7 +35,11 @@ const CONFIG = {
   'first responders', 'emergency services', 'rescue operation', 'urgent assistance',
   'triage', 'mass gathering', 'situation report', 
   'emergency medical services', 'displaced residents', 'crisis management',
-  'temporary shelter', 'emergency hotline', 'public safety alert', 'health advisory'
+  'temporary shelter', 'emergency hotline', 'public safety alert', 'health advisory',
+  'police standoff', 'active shooter', 'hostage situation', 'category 5 hurricane',
+  'category 4 hurricane', 'category 3 hurricane', 'storm surge warning',
+  'coastal evacuation', 'extreme heat warning', 'record high temperature',
+  'cooling center', 'heat advisory', 'heavy rainfall warning', 'tropical depression'
 ],
 
 };
@@ -85,47 +88,73 @@ async function startFirehose() {
     cursor: startSeq > 0 ? startSeq : undefined,
   });
 
+    // ⏱️ Automatically stop after 5 hours
+  const RUN_DURATION = 5 * 60 * 60 * 1000; // 5 hours in ms
+  setTimeout(async () => {
+    console.log("\n⏰ Time limit reached — saving cursor and shutting down...");
+    await saveCursor(lastSeq);
+    console.log(`📊 Total posts collected: ${collectedPosts}`);
+    process.exit(0);
+  }, RUN_DURATION);
+
+
   jetstream.on("commit", async (event: any) => {
-    lastSeq = event.commit.seq;
+  lastSeq = event.commit.seq;
 
-    if (collectedPosts >= CONFIG.MAX_POSTS) {
-      console.log(`✅ Reached limit of ${CONFIG.MAX_POSTS}`);
-      await saveCursor(lastSeq);
-      jetstream.close();
-      console.log(`📊 Saved cursor ${lastSeq} — total collected ${collectedPosts}`);
-      process.exit(0);
-      return;
-    }
+  if (event.commit.collection !== "app.bsky.feed.post") return;
 
-    if (event.commit.collection !== "app.bsky.feed.post") return;
+  const record = event.commit.record;
+  if (!record || !record.text) return;
 
-    const record = event.commit.record;
-    if (!record || !record.text) return;
-
-    if (!containsKeyword(record.text)) return;
-
-    const postData = {
+  // 💬 If it's a reply, store it as a conversation link
+  if (record.reply) {
+    const replyData = {
       uri: `at://${event.did}/${event.commit.collection}/${event.commit.rkey}`,
       cid: event.commit.cid,
       author: event.did,
       text: record.text,
+      reply_to: record.reply?.parent?.uri || null,
       indexed_at: record.createdAt,
-      source: "keywords",
+      source: "reply",
     };
 
     const { error } = await supabase
       .from("be_posts_input")
-      .upsert(postData, { onConflict: "uri" });
+      .upsert(replyData, { onConflict: "uri" });
 
     if (!error) {
-        collectedPosts++;
-
-      // 🧮 Print progress every 100 posts
+      collectedPosts++;
       if (collectedPosts % 100 === 0) {
-        console.log(`📈 Collected ${collectedPosts} posts so far...`);
+        console.log(`💬 Collected ${collectedPosts} posts so far...`);
       }
     }
-  });
+    return; // ✅ skip the keyword logic for replies
+  }
+
+  // 🔍 Otherwise, process normal keyword posts
+  if (!containsKeyword(record.text)) return;
+
+  const postData = {
+    uri: `at://${event.did}/${event.commit.collection}/${event.commit.rkey}`,
+    cid: event.commit.cid,
+    author: event.did,
+    text: record.text,
+    indexed_at: record.createdAt,
+    source: "keywords",
+  };
+
+  const { error } = await supabase
+    .from("be_posts_input")
+    .upsert(postData, { onConflict: "uri" });
+
+  if (!error) {
+    collectedPosts++;
+    if (collectedPosts % 100 === 0) {
+      console.log(`📈 Collected ${collectedPosts} posts so far...`);
+    }
+  }
+});
+
 
   // Graceful shutdown logic — catches all exit scenarios
 async function shutdown(reason: string) {
