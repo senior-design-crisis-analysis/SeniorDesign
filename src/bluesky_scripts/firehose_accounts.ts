@@ -83,8 +83,6 @@ const RUN_DURATION = 7 * 60 * 1000; // 7 minutes in ms
 
   jetstream.on('commit', async (event: any) => {
     lastSeq = event.commit.seq;
-    console.log("🧩 Received commit:", event.commit.collection);
-
 
     if (event.commit.collection !== 'app.bsky.feed.post') return;
     if (!isTrackedAccount(event.did, CONFIG.TRACKED_ACCOUNTS)) return;

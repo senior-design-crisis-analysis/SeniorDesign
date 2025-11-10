@@ -89,7 +89,7 @@ async function startFirehose() {
   });
 
     // ⏱️ Automatically stop after 5 hours
-  const RUN_DURATION = 5 * 60 * 60 * 1000; // 5 hours in ms
+const RUN_DURATION = 7 * 60 * 1000; // 7 minutes in ms
   setTimeout(async () => {
     console.log("\n⏰ Time limit reached — saving cursor and shutting down...");
     await saveCursor(lastSeq);
@@ -100,41 +100,11 @@ async function startFirehose() {
 
   jetstream.on("commit", async (event: any) => {
   lastSeq = event.commit.seq;
-  console.log("🧩 Received commit:", event.commit.collection);
-
 
   if (event.commit.collection !== "app.bsky.feed.post") return;
 
   const record = event.commit.record;
-  if (!record || !record.text) return;
-
-  // 💬 If it's a reply, store it as a conversation link
-  if (record.reply) {
-    const replyData = {
-      uri: `at://${event.did}/${event.commit.collection}/${event.commit.rkey}`,
-      cid: event.commit.cid,
-      author: event.did,
-      text: record.text,
-      reply_to: record.reply?.parent?.uri || null,
-      indexed_at: record.createdAt,
-      source: "reply",
-    };
-
-    const { error } = await supabase
-      .from("be_posts_input")
-      .upsert(replyData, { onConflict: "uri" });
-
-      if (error) {
-        console.error("❌ Insert error:", error.message);
-      }
-    if (!error) {
-      collectedPosts++;
-      if (collectedPosts % 100 === 0) {
-        console.log(`💬 Collected ${collectedPosts} posts so far...`);
-      }
-    }
-    return; // ✅ skip the keyword logic for replies
-  }
+  if (!record || !record.text) return;  
 
   // 🔍 Otherwise, process normal keyword posts
   if (!containsKeyword(record.text)) return;
