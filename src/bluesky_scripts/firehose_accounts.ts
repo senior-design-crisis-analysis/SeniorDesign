@@ -1,125 +1,146 @@
-// src/bluesky_scripts/firehose_accounts.ts
 import { Jetstream } from '@skyware/jetstream';
-import { createClient } from '@supabase/supabase-js';
 import { BskyAgent } from "@atproto/api";
+import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import WebSocket from "ws";
-import { error } from 'console';
 dotenv.config();
 
+// --- Environment Validation ---
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error("❌ Missing Supabase env vars");
+  console.error('❌ Missing environment variables!');
   process.exit(1);
 }
 
-const CONFIG = 
-{ SUPABASE_URL: process.env.SUPABASE_URL!, 
-   SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!, 
-   TRACKED_ACCOUNTS: [ 
-     'nws.noaa.gov', 'fema.govmirrors.com', 'actionnews5.com', 'npr.org', 
-     'sacurrent.bsky.social', 'calfire.bsky.social', 
-     'cbssundaymorning.bsky.social', 'ucanr.edu', 'massdfs.bsky.social', 
-     'denverpolice.bsky.social', 'nytimes.com', 'cnn.com', 
-     'cnnipr.bsky.social', 'reuters.com', 'usgs-quakebot.bsky.social', 
-     'noaacomms.noaa.gov', 'noaa.gov', 'climate.noaa.gov', 'nws.noaa.gov', 
-     'apnews.com', 'boston.gov', '311.boston.gov', 'berkeleyca.gov', 
-     'chicago-city.bsky.social', 'fire.boston.gov', 
-     'cityofbellevuewa.bsky.social', 'aptnnews.bsky.social', 
-     'cbseveningnews.bsky.social', 'alert.boston.gov', 
-     'cityema.bsky.social', 'cityofokc.bsky.social', 'forbes.com', 
-     'altnps.bsky.social' ], 
- };
+// --- Config ---
+const CONFIG = {
+  SUPABASE_URL: process.env.SUPABASE_URL!,
+  SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  TRACKED_ACCOUNTS: [ 
+    'nws.noaa.gov', 'fema.govmirrors.com', 'actionnews5.com', 'npr.org', 
+    'sacurrent.bsky.social', 'calfire.bsky.social', 'cbssundaymorning.bsky.social', 
+    'ucanr.edu', 'massdfs.bsky.social', 'denverpolice.bsky.social', 
+    'nytimes.com', 'cnn.com', 'cnnipr.bsky.social', 'reuters.com', 
+    'usgs-quakebot.bsky.social', 'noaacomms.noaa.gov', 'noaa.gov', 
+    'climate.noaa.gov', 'nws.noaa.gov', 'apnews.com', 'boston.gov', 
+    '311.boston.gov', 'berkeleyca.gov', 'chicago-city.bsky.social', 
+    'fire.boston.gov', 'cityofbellevuewa.bsky.social', 'aptnnews.bsky.social', 
+    'cbseveningnews.bsky.social', 'alert.boston.gov', 'cityema.bsky.social', 
+    'cityofokc.bsky.social', 'forbes.com', 'altnps.bsky.social' ],
+  MAX_POSTS: 10000,  // cap number for testing
+};
 
+// --- Initialize Supabase and Agent ---
 const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
 const agent = new BskyAgent({ service: "https://api.bsky.app" });
 
+// --- Tracking ---
 let collectedPosts = 0;
-let lastSeq = 0;
+const handleCache = new Map<string, string>();
+const DIDcache = new Map<string, string>();
 
-async function getLastCursor() {
-  const { data, error } = await supabase
-    .from('firehose_state')
-    .select('last_seq')
-    .eq('name', 'accounts')
-    .single();
-
-  if (error || !data) {
-    console.log("ℹ️ No previous cursor found — starting fresh.");
-    return 0;
+// --- Resolve account handles to DIDs ---
+async function getTrackedAccountDIDs(): Promise<Set<string>> {
+  const dids = new Set<string>();
+  for (const account of CONFIG.TRACKED_ACCOUNTS) {
+    try {
+      const profile = await agent.resolveHandle({ handle: account });
+      dids.add(profile.data.did);
+      DIDcache.set(account, profile.data.did);
+      console.log(`✅ Resolved ${account} → ${profile.data.did}`);
+    } catch (error: any) {
+      console.warn(`⚠️  Could not resolve ${account}: ${error?.message}`);
+    }
   }
-
-  console.log(`↩️ Resuming from cursor: ${data.last_seq}`);
-  return data.last_seq;
+  return dids;
 }
 
-async function saveCursor(seq: number) {
-  await supabase.from('firehose_state')
-    .upsert({ name: 'accounts', last_seq: seq });
-}
-
-function isTrackedAccount(did: string, trackedHandles: string[]): boolean {
-  return trackedHandles.some(handle => did.endsWith(handle));
-}
-
+// --- Main Firehose ---
 async function startFirehose() {
-  console.log("🚀 Starting Accounts Firehose...");
+  console.log('🚀 Starting Firehose (Accounts)');
+  console.log(`👥 Tracking ${CONFIG.TRACKED_ACCOUNTS.length} accounts...`);
 
-  const startSeq = await getLastCursor();
+  const trackedDIDs = await getTrackedAccountDIDs();
+  console.log(`✅ ${trackedDIDs.size} DIDs ready\n---`);
 
   const jetstream = new Jetstream({
     wantedCollections: ['app.bsky.feed.post'],
     ws: WebSocket,
-    cursor: startSeq > 0 ? startSeq : undefined,
   });
-  
-    // ⏱️ Automatically stop after 5 hours
-const RUN_DURATION = 7 * 60 * 1000; // 7 minutes in ms
-  setTimeout(async () => {
-    console.log("\n⏰ Time limit reached — saving cursor and shutting down...");
-    await saveCursor(lastSeq);
-    console.log(`📊 Total posts collected: ${collectedPosts}`);
-    process.exit(0);
-  }, RUN_DURATION);
 
   jetstream.on('commit', async (event: any) => {
-    lastSeq = event.commit.seq;
+    if (collectedPosts >= CONFIG.MAX_POSTS) {
+      console.log(`✅ Reached ${CONFIG.MAX_POSTS} posts, stopping.`);
+      jetstream.close();
+      process.exit(0);
+    }
 
     if (event.commit.collection !== 'app.bsky.feed.post') return;
-    if (!isTrackedAccount(event.did, CONFIG.TRACKED_ACCOUNTS)) return;
+    if (!trackedDIDs.has(event.did)) return; // Only track specific accounts
+
+    const record = event.commit.record;
+    const text = record?.text || '';
+    if (!text) return;
+
+    // Resolve handle (cache first)
+    let authorHandle: string;
+    if (handleCache.has(event.did)) {
+      authorHandle = handleCache.get(event.did)!;
+    } else {
+      try {
+        const authorData = await agent.getProfile({ actor: event.did });
+        authorHandle = authorData.data.handle;
+        handleCache.set(event.did, authorHandle);
+      } catch {
+        console.warn(`⚠️  Failed to get handle for ${event.did}`);
+        return;
+      }
+    }
 
     const postData = {
       uri: `at://${event.did}/${event.commit.collection}/${event.commit.rkey}`,
       cid: event.commit.cid,
-      author: event.did,
-      text: event.commit.record?.text || '',
-      indexed_at: event.commit.record.createdAt,
-      source: 'accounts'
+      author: authorHandle,
+      text: text,
+      indexed_at: record.createdAt,
+      source: 'accounts',  // helpful for identifying which script wrote it
     };
 
-    // Safe insert (avoid duplicates)
     const { error } = await supabase
       .from('be_posts_input')
-      .upsert(postData, { onConflict: 'uri' });
+      .insert(postData);
 
-      if (error) {
-        console.error("❌ Insert error:", error.message);
-      }
-
-    if (!error) collectedPosts++;
+    if (error) {
+      if (error.code === '23505') return; // duplicate
+      console.error('❌ Insert error:', error.message);
+    } else {
+      collectedPosts++;
+      //console.log(`✅ [${collectedPosts}] ${authorHandle}: ${text.slice(0, 60)}...`);
+    }
   });
 
-  process.on('SIGINT', async () => {
-    console.log("\n🛑 Shutting down — saving cursor...");
-    await saveCursor(lastSeq);
-    console.log(`📊 Total posts collected: ${collectedPosts}`);
-    process.exit(0);
+  jetstream.on('error', (err: Error) => {
+    console.error('❌ Jetstream error:', err);
   });
 
-  process.on("exit", () => {
-    console.log(`🏁 Finished run — total posts collected: ${collectedPosts}`);
+  jetstream.on('close', () => {
+    console.log('🔌 Connection closed');
   });
 
   jetstream.start();
+
+  // Stop after 7 minutes (testing mode)
+  setTimeout(() => {
+    console.log(`⏱️ Stopping after 7 minutes. Total posts: ${collectedPosts}`);
+    jetstream.close();
+    process.exit(0);
+  }, 7 * 60 * 1000);
 }
 
+// --- Start ---
 startFirehose();
+
+process.on('SIGINT', () => {
+  console.log('\n⚠️ Graceful shutdown...');
+  console.log(`📊 Total posts collected: ${collectedPosts}`);
+  process.exit(0);
+});
