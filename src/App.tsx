@@ -39,6 +39,7 @@ import TableSkeetTable from "./components/posts_table/ExtractedInfoTable";
 import AuthorAnalysis from "./components/AuthorAnalysis";
 import DisasterTypeCount from "./components/DisasterTypeCount";
 import LocationCount from "./components/LocationAnalysis";
+import Nav from "./components/Nav";
 
 type Row = {
   uri: string;
@@ -200,8 +201,9 @@ function App() {
 
   return (
     <div>
+      <Nav />
       <div
-        className="text-left px-2 py-6 gap-6"
+        className="mt-[3rem] text-left px-2 py-6 gap-6"
         style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
       >
         Disaster Post Analysis Dashboard
