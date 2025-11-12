@@ -35,6 +35,7 @@ import { Switch } from "./components/ui/switch";
 import HelpRequestPost from "./components/HelpRequestPost";
 import "./App.css";
 import supabase from "./supabase-client";
+import Nav from "./components/Nav";
 
 type Row = {
   uri: string;
@@ -120,7 +121,11 @@ function App() {
 
   return (
     <div>
-      <div className="text-left px-2 py-6 font-bold text-2xl">
+      <Nav />
+      <div
+        className="mt-[3rem] text-left px-2 py-6 gap-6"
+        style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
+      >
         Disaster Post Analysis Dashboard
       </div>
       <Card className="w-full mb-8 container">
