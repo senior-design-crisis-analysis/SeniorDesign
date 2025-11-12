@@ -128,15 +128,7 @@ export default function TableSkeetTable() {
   }, [dateRange, table]);
 
   return (
-    <div className="bg-slate-50 w-full overflow-x-auto py-6 font-inter font-normal text-sm text-[#020617]">
-      {/* Header */}
-
-      <div
-        className="flex text-xl font-medium px-2 gap-1 items-center"
-        style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
-      >
-        All Activity
-      </div>
+    <div className="bg-slate-50 w-full overflow-x-auto font-inter font-normal text-sm text-[#020617]">
       {/* Filters */}
       <div className="flex items-center py-2 gap-2 flex-wrap justify-between">
         {/* Search Input */}

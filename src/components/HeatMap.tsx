@@ -138,7 +138,7 @@ export default function HeatMap({ posts }: { posts: DisasterRow[] }) {
       <div style={{ position: "relative", width: 650, height: 500 }}>
         <button
           onClick={() => setShowMarkers((prev) => !prev)}
-          className="absolute top-2 right-2 z-10000 bg-white border border-gray-300 shadow-sm rounded-md px-2 py-1 text-sm"
+          className="absolute top-2 right-2 z-500 bg-white border border-gray-300 shadow-sm rounded-md px-2 py-1 text-sm"
         >
           {showMarkers ? "Hide Markers" : "Show Markers"}
         </button>

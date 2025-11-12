@@ -14,7 +14,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/" element={<App />} /> //done
         <Route path="/datatable" element={<DataTablePage />} /> //done
         <Route path="/analysis" element={<AnalysisPage />} />
-        <Route path="/info" element={<InfoPage />} />
+        <Route path="/resources" element={<InfoPage />} />
       </Routes>
     </Router>
   </StrictMode>

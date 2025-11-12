@@ -122,11 +122,13 @@ function App() {
   return (
     <div>
       <Nav />
-      <div
-        className="mt-[3rem] text-left px-2 py-6 gap-6"
-        style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
-      >
-        Disaster Post Analysis Dashboard
+      <div className="pt-[2rem] mt-[3rem] flex justify-between items-center mb-2">
+        <div
+          className="text-left px-2 py-2"
+          style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
+        >
+          Disaster Dashboard
+        </div>
       </div>
       <Card className="w-full mb-8 container">
         <CardHeader>
@@ -137,11 +139,14 @@ function App() {
             Showing {visibleMapPoints.length} posts from Bluesky
           </CardDescription>
           <CardAction>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 z-[1000]">
               {/* Date Range */}
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-56 justify-between">
+                  <Button
+                    variant="outline"
+                    className="w-56 justify-between z-[1000]"
+                  >
                     {dateRange?.from && dateRange?.to
                       ? `${formatDate(dateRange.from)} - ${formatDate(
                           dateRange.to
@@ -150,7 +155,7 @@ function App() {
                     <ChevronDownIcon className="text-slate-400" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 z-[1000]" align="start">
                   <Calendar
                     mode="range"
                     defaultMonth={dateRange?.from}
@@ -168,10 +173,10 @@ function App() {
                   setSeverity(v === "all" ? undefined : (v as SeverityEnum))
                 }
               >
-                <SelectTrigger className="w-[170px]">
+                <SelectTrigger className="w-[170px] z-[1000]">
                   <SelectValue placeholder="Severity Level" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[1000]">
                   <SelectGroup>
                     <SelectItem value="all">All Severities</SelectItem>
                     <SelectItem value="high">High</SelectItem>
