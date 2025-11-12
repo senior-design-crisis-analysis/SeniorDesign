@@ -28,17 +28,18 @@ const DisasterTypePieChart = ({ disasterData }: Props) => {
   const total = disasterData.reduce((sum, item) => sum + item.count, 0);
 
   const baseColors = [
-    "rgba(0, 0, 0, 1)",
-    "rgba(25, 31, 46, 1)",
-    "rgba(41, 48, 62, 1)",
-    "rgba(55, 62, 76, 1)",
-    "rgba(82, 89, 102, 1)",
-    "rgba(103, 110, 123, 1)",
-    "rgba(124, 132, 144, 1)",
-    "rgba(154, 163, 174, 1)",
-    "rgba(178, 188, 198, 1)",
-    "rgba(206, 216, 226, 1)",
-    "rgba(235, 245, 255, 1)",
+    "#84cc16",
+    "#3b82f6",
+    "#ef4444",
+    "#06b6d4",
+    "#fbbf24",
+    "#8b5cf6",
+    "#b5b5b5",
+    "#ec4899",
+    "#10b981",
+    "#f97316",
+    "#a855f7",
+    "#0ea5e9",
   ];
 
   // Darken the lightest colors for better visibility

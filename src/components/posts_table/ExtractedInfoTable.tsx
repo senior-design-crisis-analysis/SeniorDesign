@@ -136,13 +136,6 @@ export default function TableSkeetTable() {
         style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
       >
         All Activity
-        <button
-          title="tooltip"
-          onClick={handleTooltipClick}
-          className="inline-flex items-center justify-center rounded-full bg-black h-[22px] w-[22px]"
-        >
-          <Info size={22} strokeWidth={2} color="#ffffff" />
-        </button>
       </div>
       {/* Filters */}
       <div className="flex items-center py-2 gap-2 flex-wrap justify-between">

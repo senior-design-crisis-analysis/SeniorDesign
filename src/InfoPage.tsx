@@ -228,6 +228,10 @@ export default function InfoPage() {
         Information sourced from FEMA & Ready.gov. For the best information,
         follow local emergency alerts and officials.
       </footer>
+      <footer className="text-center mt-5 text-xs text-slate-500">
+        Made with love by Professor Sarac's Team 77 at the University of Texas
+        at Dallas.
+      </footer>
     </div>
   );
 }

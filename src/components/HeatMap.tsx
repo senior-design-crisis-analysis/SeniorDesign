@@ -33,13 +33,13 @@ const disasterColors: Record<string, string> = {
   fire: "#ef4444",
   shooting: "#000000",
   flood: "#3b82f6",
-  earthquake: "#f97316",
-  hurricane: "#0ea5e9",
+  earthquake: "#06b6d4",
+  hurricane: "#fbbf24",
   tornado: "#8b5cf6",
-  auto_accident: "#9333ea",
-  storm: "#22c55e",
-  severe_storm: "#84cc16",
-  other: "#6b7280",
+  auto_accident: "#b5b5b5",
+  storm: "#a855f7",
+  severe_storm: "#10b981",
+  other: "#f97316",
 };
 
 const severityWeights: Record<string, number> = {

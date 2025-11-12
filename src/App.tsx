@@ -35,10 +35,6 @@ import { Switch } from "./components/ui/switch";
 import HelpRequestPost from "./components/HelpRequestPost";
 import "./App.css";
 import supabase from "./supabase-client";
-import TableSkeetTable from "./components/posts_table/ExtractedInfoTable";
-import AuthorAnalysis from "./components/AuthorAnalysis";
-import DisasterTypeCount from "./components/DisasterTypeCount";
-import LocationCount from "./components/LocationAnalysis";
 
 type Row = {
   uri: string;
@@ -54,7 +50,7 @@ type Row = {
 };
 
 const isInRange = (iso: string | null, from: Date, to: Date) => {
-  if (!iso) return false; // ignore rows without created_at
+  if (!iso) return false;
   const d = new Date(iso);
   return d >= from && d <= to;
 };
@@ -63,35 +59,28 @@ function App() {
   const [posts, setPosts] = useState<Row[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [showHelpList, setShowHelpList] = useState(false); // ← NEW
-
+  const [showHelpList, setShowHelpList] = useState(false);
   const today = new Date();
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(today.getFullYear() - 1); // 1 year ago
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: oneYearAgo, // 00:00 on the same day last year
-    to: today, // 00:00 today (inclusive for your ≤ test)
+  const oneYearAgo = new Date(today);
+  oneYearAgo.setFullYear(today.getFullYear() - 1);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: oneYearAgo,
+    to: today,
   });
+  const [disaster, setDisaster] = useState<DisasterEnum | undefined>();
+  const [severity, setSeverity] = useState<SeverityEnum | undefined>();
 
-  const [disaster, setDisaster] = useState<DisasterEnum | undefined>(undefined);
-  const [severity, setSeverity] = useState<SeverityEnum | undefined>(undefined);
-
-  /* coordinates that have to be painted on the map -----------------*/
   const visibleMapPoints = useMemo(() => {
     if (!dateRange?.from || !dateRange?.to) return [];
-
     const base = posts.filter(
       (p) =>
         p.latitude != null &&
         p.longitude != null &&
-        isInRange(p.indexed_at, dateRange.from!, dateRange.to!) &&
+        isInRange(p.indexed_at, dateRange.from, dateRange.to) &&
         (disaster === undefined || p.disaster_type === disaster) &&
         (severity === undefined || p.severity_level === severity)
     );
-
-    /* when the switch is ON  ->  only help-request points
-      when the switch is OFF ->  every post that has coords   */
-    return showHelpList ? base.filter((p) => p.help_request === true) : base;
+    return showHelpList ? base.filter((p) => p.help_request) : base;
   }, [posts, dateRange, disaster, severity, showHelpList]);
 
   /* cards that have to be shown in the side panel ------------------*/
@@ -100,80 +89,15 @@ function App() {
     return visibleMapPoints.filter((p) => p.help_request); // already filtered above, but keeps the intent explicit
   }, [visibleMapPoints, showHelpList]);
 
-  const authorStats = useMemo(() => {
-    // Count posts per author
-    const authorCounts: Record<string, number> = {};
-
-    posts.forEach((post) => {
-      if (post.author) {
-        authorCounts[post.author] = (authorCounts[post.author] || 0) + 1;
-      }
-    });
-
-    // ADDED NOV.4 BY JASZ
-    // Convert to array and filter for authors with 10+ posts
-    return Object.entries(authorCounts)
-      .map(([author, postCount]) => ({ author, postCount }))
-      .filter((author) => author.postCount >= 10)
-      .sort((a, b) => b.postCount - a.postCount); // Sort descending
-  }, [posts]);
-
-  const locationStats = useMemo(() => {
-    const locationCounts: Record<string, number> = {};
-
-    posts.forEach((post) => {
-      const locRaw = post.location_mentioned;
-      if (
-        locRaw && // not null or undefined
-        locRaw.trim() !== "" && // not empty
-        locRaw.trim().toLowerCase() !== "null" // not the string "null"
-      ) {
-        const loc = locRaw.trim().toLowerCase();
-        locationCounts[loc] = (locationCounts[loc] || 0) + 1;
-      }
-    });
-
-    return Object.entries(locationCounts)
-      .map(([location, count]) => ({ location, count }))
-      .filter((loc) => loc.count >= 5) // show only locations with ≥5 mentions
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
-  }, [posts]);
-
-  // ADDED NOV.4 BY JASZ
-  const disasterStats = useMemo(() => {
-    const disasterCounts: Record<string, number> = {};
-
-    posts.forEach((post) => {
-      if (post.disaster_type) {
-        disasterCounts[post.disaster_type] =
-          (disasterCounts[post.disaster_type] || 0) + 1;
-      }
-    });
-
-    // Convert to array and sort by count descending
-    return Object.entries(disasterCounts)
-      .map(([disasterType, count]) => ({ disasterType, count }))
-      .sort((a, b) => b.count - a.count);
-  }, [posts]);
-
   useEffect(() => {
     const fetchPosts = async () => {
-      const { data, error, count } = await supabase
-        //.from("FE2-extracted_info_output_duplicate")
+      const { data, error } = await supabase
         .from("be_extracted_info_output")
-        .select("*", { count: "exact" }) // ← see how many rows exist
+        .select("*")
         .limit(3000);
-
-      console.log("Supabase answer:", { data, error, count });
-      if (error) {
-        console.error(error);
-        setError(error.message);
-      } else {
-        setPosts(data || []);
-      }
+      if (error) setError(error.message);
+      else setPosts(data || []);
     };
-
     fetchPosts();
   }, []);
 
@@ -182,36 +106,26 @@ function App() {
     return (
       <Alert>
         <Loader />
-        <AlertTitle className="text-left">Loading</AlertTitle>
-        <AlertDescription>
-          Thank you for your patience with Disaster Post Analysis Dashboard!
-        </AlertDescription>
+        <AlertTitle>Loading</AlertTitle>
+        <AlertDescription>Loading Disaster Data...</AlertDescription>
       </Alert>
     );
 
-  const formatDate = (date: Date) => {
-    if (!date) return "";
-    return date.toLocaleDateString("en-US", {
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
-  };
 
   return (
     <div>
-      <div
-        className="text-left px-2 py-6 gap-6"
-        style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
-      >
+      <div className="text-left px-2 py-6 font-bold text-2xl">
         Disaster Post Analysis Dashboard
       </div>
-      <Card className="w-full mb-8 container DisasterPostsintheUnitedStates">
+      <Card className="w-full mb-8 container">
         <CardHeader>
-          <CardTitle
-            className="text-left"
-            style={{ color: "#020617", fontSize: "18px", fontWeight: 600 }}
-          >
+          <CardTitle className="text-left text-lg font-semibold">
             Disaster Posts in the United States
           </CardTitle>
           <CardDescription className="text-left">
@@ -219,60 +133,40 @@ function App() {
           </CardDescription>
           <CardAction>
             <div className="flex items-center space-x-2">
-              {/*<DateRangePicker
-                onUpdate={(values) => console.log(values)}
-                initialDateFrom="2025-10-01"
-                initialDateTo="2025-10-31"
-                align="start"
-                locale="en-GB"
-                showCompare={false}
-              />*/}
-              <div className="flex flex-col gap-3">
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      id="date"
-                      className="bg-white w-56 justify-between font-normal"
-                      style={{ zIndex: 9999 }}
-                    >
-                      {dateRange?.from && dateRange?.to
-                        ? `${formatDate(dateRange.from)} - ${formatDate(
-                            dateRange.to
-                          )}`
-                        : "Select date"}
-                      <ChevronDownIcon className="text-slate-400" />
-                    </Button>
-                  </PopoverTrigger>
+              {/* Date Range */}
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-56 justify-between">
+                    {dateRange?.from && dateRange?.to
+                      ? `${formatDate(dateRange.from)} - ${formatDate(
+                          dateRange.to
+                        )}`
+                      : "Select date"}
+                    <ChevronDownIcon className="text-slate-400" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    numberOfMonths={1}
+                  />
+                </PopoverContent>
+              </Popover>
 
-                  <PopoverContent
-                    className="w-auto overflow-hidden p-0"
-                    align="start"
-                    style={{ zIndex: 9999 }}
-                  >
-                    <Calendar
-                      mode="range"
-                      defaultMonth={dateRange?.from}
-                      selected={dateRange}
-                      onSelect={setDateRange}
-                      numberOfMonths={1}
-                      className="rounded-lg border shadow-sm"
-                      captionLayout="dropdown"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
+              {/* Severity */}
               <Select
                 value={severity ?? "all"}
                 onValueChange={(v) =>
                   setSeverity(v === "all" ? undefined : (v as SeverityEnum))
                 }
               >
-                <SelectTrigger className="w-[170px]" style={{ zIndex: 9999 }}>
+                <SelectTrigger className="w-[170px]">
                   <SelectValue placeholder="Severity Level" />
                 </SelectTrigger>
-                <SelectContent style={{ zIndex: 9999 }}>
+                <SelectContent>
                   <SelectGroup>
                     <SelectItem value="all">All Severities</SelectItem>
                     <SelectItem value="high">High</SelectItem>
@@ -282,30 +176,27 @@ function App() {
                 </SelectContent>
               </Select>
 
+              {/* Disaster */}
               <Select
                 value={disaster ?? "all"}
                 onValueChange={(v) =>
                   setDisaster(v === "all" ? undefined : (v as DisasterEnum))
                 }
               >
-                <SelectTrigger className="w-[170px]" style={{ zIndex: 9999 }}>
+                <SelectTrigger className="w-[170px]">
                   <SelectValue placeholder="All Disasters" />
                 </SelectTrigger>
-                <SelectContent style={{ zIndex: 9999 }}>
+                <SelectContent>
                   <SelectGroup>
                     <SelectItem value="all">All Disasters</SelectItem>
-                    <SelectItem value="auto_accident">Auto Accident</SelectItem>
-                    <SelectItem value="earthquake">Earthquake</SelectItem>
-                    <SelectItem value="extreme_heat">Extreme Heat</SelectItem>
-                    <SelectItem value="flood">Flood</SelectItem>
                     <SelectItem value="fire">Fire</SelectItem>
+                    <SelectItem value="flood">Flood</SelectItem>
                     <SelectItem value="hurricane">Hurricane</SelectItem>
-                    <SelectItem value="severe_storm">Severe Storm</SelectItem>
-                    <SelectItem value="shooting">Shooting</SelectItem>
+                    <SelectItem value="earthquake">Earthquake</SelectItem>
                     <SelectItem value="tornado">Tornado</SelectItem>
-                    <SelectItem value="tropical_storm">
-                      Tropical Storm
-                    </SelectItem>
+                    <SelectItem value="extreme_heat">Extreme Heat</SelectItem>
+                    <SelectItem value="shooting">Shooting</SelectItem>
+                    <SelectItem value="auto_accident">Auto Accident</SelectItem>
                     <SelectItem value="other_disaster">Other</SelectItem>
                   </SelectGroup>
                 </SelectContent>
@@ -322,89 +213,41 @@ function App() {
             </div>
           </CardAction>
         </CardHeader>
-        <CardContent className="DPITUSContainer mb-4">
-          <div>
-            <HeatMap posts={visibleMapPoints} />
-          </div>
+
+        <CardContent className="flex gap-4">
+          <HeatMap posts={visibleMapPoints} />
           {showHelpList && (
-            <Card className="w-full max-w-sm HelpRequestPosts">
-              <div className="card-header">
-                <p className="card-header-text">Help Requests</p>
-              </div>
-              <div className="frame-clip-content max-h-[473px] w-[377px] overflow-y-auto overflow-x-hidden scrollbar-none">
-                <div className="frame-posts">
-                  {visibleHelpCards.length === 0 ? (
-                    <p className="handle-text text-center">
-                      No help requests in the selected period.
-                    </p>
-                  ) : (
-                    visibleHelpCards.map((post) => (
-                      <div key={post.uri}>
-                        <HelpRequestPost
-                          data={{
-                            handle: post.author ?? "Anonymous",
-                            category: post.disaster_type ?? "unknown",
-                            severity: post.severity_level ?? "unknown",
-                            text: post.original_text ?? "",
-                            location: post.location_mentioned ?? "unknown",
-                            time: post.indexed_at ?? "",
-                          }}
-                        />
-                      </div>
-                    ))
-                  )}
-                </div>
+            <Card className="w-[380px]">
+              <div className="card-header p-3 font-semibold">Help Requests</div>
+              <div className="overflow-y-auto max-h-[480px] p-2">
+                {visibleHelpCards.length === 0 ? (
+                  <p className="text-center text-slate-500">
+                    No help requests found.
+                  </p>
+                ) : (
+                  visibleHelpCards.map((post) => (
+                    <HelpRequestPost
+                      key={post.uri}
+                      data={{
+                        handle: post.author ?? "Anonymous",
+                        category: post.disaster_type ?? "unknown",
+                        severity: post.severity_level ?? "unknown",
+                        text: post.original_text ?? "",
+                        location: post.location_mentioned ?? "unknown",
+                        time: post.indexed_at ?? "",
+                      }}
+                    />
+                  ))
+                )}
               </div>
             </Card>
           )}
         </CardContent>
-        {/*  */}
-        {/* Bottom section: Disaster Type and Author Analysis side by side */}
       </Card>
-      <TableSkeetTable />
-
-      <div
-        className=" text-left py-0"
-        style={{ color: "#020617", fontSize: "28px", fontWeight: 600 }}
-      >
-        Data Analysis
-      </div>
-      <Card className="mt-2">
-        <CardContent>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              {locationStats.length > 0 ? (
-                <LocationCount locationData={locationStats} />
-              ) : (
-                <p className="text-center text-slate-500 py-8">
-                  No disaster type data available.
-                </p>
-              )}
-            </div>
-            {/* Left: Disaster Type Count */}
-            <div>
-              {disasterStats.length > 0 ? (
-                <DisasterTypeCount disasterData={disasterStats} />
-              ) : (
-                <p className="text-center text-slate-500 py-8">
-                  No disaster type data available.
-                </p>
-              )}
-            </div>
-
-            {/* Right: Author Analysis */}
-            <div>
-              {authorStats.length > 0 ? (
-                <AuthorAnalysis authorData={authorStats} />
-              ) : (
-                <p className="text-center text-slate-500 py-8">
-                  No authors with 10+ posts in the current dataset.
-                </p>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <footer className="text-center mt-10 text-xs text-slate-500">
+        Made with love by Professor Sarac's Team 77 at the University of Texas
+        at Dallas.
+      </footer>
     </div>
   );
 }
