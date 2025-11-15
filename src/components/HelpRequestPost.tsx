@@ -21,7 +21,7 @@ const HelpRequestPost = ({ data }: Props) => {
   const prettyTime = time ? timeAgo(time) : "";
 
   return (
-    <div className="HelpRequestPost">
+    <div className="HelpRequestPost w-full max-w-2xl mb-4">
       <div className="header">
         <p className="handle-text">@{handle}</p>
       </div>

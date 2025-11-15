@@ -12,4 +12,5 @@ export type DisasterRow = {
   help_request: boolean | null;
   disaster_type: DisasterEnum | null;
   severity_level: SeverityEnum | null;
+  like_count: number | null;
 };
