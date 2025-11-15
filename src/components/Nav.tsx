@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import logo from "../../public/vite.svg";
+import logo from "../assets/vite.svg";
 
 export default function Nav() {
   const [open, setOpen] = useState(false);

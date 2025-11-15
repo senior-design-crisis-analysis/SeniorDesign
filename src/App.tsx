@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { DisasterEnum, SeverityEnum } from "./enumTypes";
 import HeatMap from "./components/HeatMap";
+import { BreakingNumbers } from "./components/BreakingNumbers/BreakingNumbers";
 
 import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert";
 import {
@@ -36,11 +37,13 @@ import HelpRequestPost from "./components/HelpRequestPost";
 import "./App.css";
 import supabase from "./supabase-client";
 import Nav from "./components/Nav";
+import type { DisasterRow } from "./components/DisasterRow";
 
 type Row = {
   uri: string;
   location_mentioned: string | null;
   latitude: number | null;
+  model_confidence: number | null;
   longitude: number | null;
   original_text: string | null;
   author: string | null;
@@ -64,7 +67,7 @@ function App() {
   const today = new Date();
   const oneYearAgo = new Date(today);
   oneYearAgo.setFullYear(today.getFullYear() - 1);
-  const [dateRange, setDateRange] = useState<DateRange>({
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: oneYearAgo,
     to: today,
   });
@@ -72,12 +75,16 @@ function App() {
   const [severity, setSeverity] = useState<SeverityEnum | undefined>();
 
   const visibleMapPoints = useMemo(() => {
-    if (!dateRange?.from || !dateRange?.to) return [];
+    const from = dateRange?.from;
+    const to   = dateRange?.to;
+    if (!from || !to) {
+      return []; 
+    }
     const base = posts.filter(
       (p) =>
         p.latitude != null &&
         p.longitude != null &&
-        isInRange(p.indexed_at, dateRange.from, dateRange.to) &&
+        isInRange(p.indexed_at, from, to) &&
         (disaster === undefined || p.disaster_type === disaster) &&
         (severity === undefined || p.severity_level === severity)
     );
@@ -94,8 +101,7 @@ function App() {
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("be_extracted_info_output")
-        .select("*")
-        .limit(3000);
+        .select("*");
       if (error) setError(error.message);
       else setPosts(data || []);
     };
@@ -107,8 +113,8 @@ function App() {
     return (
       <Alert>
         <Loader />
-        <AlertTitle>Loading</AlertTitle>
-        <AlertDescription>Loading Disaster Data...</AlertDescription>
+        <AlertTitle className="text-left">Loading</AlertTitle>
+        <AlertDescription>Loading disaster data...</AlertDescription>
       </Alert>
     );
 
@@ -130,13 +136,14 @@ function App() {
           Disaster Dashboard
         </div>
       </div>
+      <BreakingNumbers posts={posts} />
       <Card className="w-full mb-8 container">
         <CardHeader>
           <CardTitle className="text-left text-lg font-semibold">
             Disaster Posts in the United States
           </CardTitle>
           <CardDescription className="text-left">
-            Showing {visibleMapPoints.length} posts from Bluesky
+            Showing {visibleMapPoints.length.toLocaleString()} posts with associated locations from Bluesky
           </CardDescription>
           <CardAction>
             <div className="flex items-center space-x-2 z-[1000]">
@@ -158,6 +165,7 @@ function App() {
                 <PopoverContent className="w-auto p-0 z-[1000]" align="start">
                   <Calendar
                     mode="range"
+                    required={false}  
                     defaultMonth={dateRange?.from}
                     selected={dateRange}
                     onSelect={setDateRange}
@@ -225,7 +233,15 @@ function App() {
         </CardHeader>
 
         <CardContent className="flex gap-4">
-          <HeatMap posts={visibleMapPoints} />
+          <HeatMap
+            posts={visibleMapPoints.filter(
+              (p): p is DisasterRow =>
+                p.latitude       !== null &&
+                p.longitude      !== null &&
+                p.disaster_type  !== null &&
+                p.severity_level !== null
+            )}
+          />
           {showHelpList && (
             <Card className="w-[380px]">
               <div className="card-header p-3 font-semibold">Help Requests</div>

@@ -47,7 +47,7 @@ import { Calendar } from "../ui/calendar";
 import type { TableSkeet } from "@/components/posts_table/tableskeet_type";
 import { columns } from "./columns";
 import "./../../App.css";
-import { Info } from "lucide-react";
+//import { Info } from "lucide-react";
 //end imports
 
 export default function TableSkeetTable() {
@@ -89,9 +89,9 @@ export default function TableSkeetTable() {
   }, [helpOnly]);
 
   //handle tooltip to open link in new tab on click
-  const handleTooltipClick = () => {
+  /*const handleTooltipClick = () => {
     window.open("/info", "_blank");
-  };
+  };*/
 
   //create table
   const table = useReactTable({

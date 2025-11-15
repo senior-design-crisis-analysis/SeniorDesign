@@ -1,13 +1,15 @@
+import type { SeverityEnum, DisasterEnum } from "@/enumTypes";
+
 export type DisasterRow = {
   uri: string;
-  latitude: number | null;
-  longitude: number | null;
-  disaster_type: string;
-  severity_level: "low" | "medium" | "high" | null;
-  model_confidence: number | null;
   location_mentioned: string | null;
-  help_request: boolean;
-  author: string | null;
+  latitude: number | null;
+  model_confidence: number | null;
+  longitude: number | null;
   original_text: string | null;
+  author: string | null;
   indexed_at: string | null;
+  help_request: boolean | null;
+  disaster_type: DisasterEnum | null;
+  severity_level: SeverityEnum | null;
 };
