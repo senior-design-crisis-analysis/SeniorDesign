@@ -51,7 +51,7 @@ const severityWeights: Record<string, number> = {
 // Heat layer component
 function HeatLayer({ points }: { points: DisasterRow[] }) {
   const map = useMap();
-  const layerRef = useRef<L.Layer>();
+  const layerRef = useRef<L.Layer | undefined>(undefined);
 
   useEffect(() => {
     if (!map) return;
@@ -166,8 +166,8 @@ export default function HeatMap({ posts }: { posts: DisasterRow[] }) {
                   key={r.uri ?? i}
                   center={[r.latitude!, r.longitude!]}
                   radius={8}
-                  color={disasterColors[r.disaster_type] || "gray"}
-                  fillColor={disasterColors[r.disaster_type] || "gray"}
+                  color={disasterColors[r.disaster_type ?? 'unknown'] || 'gray'}
+                  fillColor={disasterColors[r.disaster_type ?? 'unknown'] || 'gray'}
                   fillOpacity={0.7}
                   weight={2}
                 >
