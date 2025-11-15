@@ -13,8 +13,8 @@ export default function Nav() {
   ];
 
   return (
-    <header className="fixed top-3 left-3 right-3 z-[1000]">
-      <nav className="mx-auto flex h-16 items-center justify-between rounded-[20px] bg-white/70 px-6 backdrop-blur md:px-8">
+    <header className="top-3 left-3 right-3 z-[1000]">
+      <nav className="border-2 border-slate300 mx-auto flex h-16 items-center justify-between rounded-[20px] bg-white/70 px-6 backdrop-blur md:px-8">
         <Link to="/" className="flex gap-[6px] h-8 items-center">
           <img src={logo} alt="RiskRadar" className="h-8 w-auto" />
           <h3 className="font-medium text-[20px]">RiskRadar</h3>
