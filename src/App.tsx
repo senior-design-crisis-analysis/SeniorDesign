@@ -101,8 +101,7 @@ function App() {
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("be_extracted_info_output")
-        .select("*")
-        .limit(10000);
+        .select("*");
       if (error) setError(error.message);
       else setPosts(data || []);
     };
@@ -114,8 +113,8 @@ function App() {
     return (
       <Alert>
         <Loader />
-        <AlertTitle>Loading</AlertTitle>
-        <AlertDescription>Loading Disaster Data...</AlertDescription>
+        <AlertTitle className="text-left">Loading</AlertTitle>
+        <AlertDescription>Loading disaster data...</AlertDescription>
       </Alert>
     );
 
@@ -144,7 +143,7 @@ function App() {
             Disaster Posts in the United States
           </CardTitle>
           <CardDescription className="text-left">
-            Showing {visibleMapPoints.length} posts from Bluesky
+            Showing {visibleMapPoints.length.toLocaleString()} posts with associated locations from Bluesky
           </CardDescription>
           <CardAction>
             <div className="flex items-center space-x-2 z-[1000]">
