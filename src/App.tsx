@@ -51,6 +51,7 @@ type Row = {
   help_request: boolean | null;
   disaster_type: DisasterEnum | null;
   severity_level: SeverityEnum | null;
+  like_count: number | null;
 };
 
 const isInRange = (iso: string | null, from: Date, to: Date) => {
@@ -95,6 +96,12 @@ function App() {
   const visibleHelpCards = useMemo(() => {
     if (!showHelpList) return []; // panel hidden
     return visibleMapPoints.filter((p) => p.help_request); // already filtered above, but keeps the intent explicit
+  }, [visibleMapPoints, showHelpList]);
+
+  const topPosts = useMemo(() => {
+    if (showHelpList) return []; // not in top-posts mode
+    return [...visibleMapPoints]
+      .sort((a, b) => (b.like_count ?? 0) - (a.like_count ?? 0))
   }, [visibleMapPoints, showHelpList]);
 
   useEffect(() => {
@@ -225,6 +232,7 @@ function App() {
                   id="help-requests"
                   checked={showHelpList}
                   onCheckedChange={setShowHelpList}
+                  className="hover:cursor-pointer"
                 />
                 <Label htmlFor="help-requests">Help Requests</Label>
               </div>
@@ -242,31 +250,58 @@ function App() {
                 p.severity_level !== null
             )}
           />
-          {showHelpList && (
-            <Card className="w-[380px]">
-              <div className="card-header p-3 font-semibold">Help Requests</div>
-              <div className="overflow-y-auto max-h-[480px] p-2">
-                {visibleHelpCards.length === 0 ? (
-                  <p className="text-center text-slate-500">
-                    No help requests found.
-                  </p>
+
+          {!showHelpList ? (
+            <Card className="w-full">
+              <div className="card-header"> <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Top Posts</h3></div>
+              <div className="p-0 overflow-y-auto overflow-x-hidden max-h-[480px] flex flex-col items-center">
+                {topPosts.length === 0 ? (
+                  <p className="text-center text-slate-500">No posts found.</p>
                 ) : (
-                  visibleHelpCards.map((post) => (
-                    <HelpRequestPost
-                      key={post.uri}
-                      data={{
-                        handle: post.author ?? "Anonymous",
-                        category: post.disaster_type ?? "unknown",
-                        severity: post.severity_level ?? "unknown",
-                        text: post.original_text ?? "",
-                        location: post.location_mentioned ?? "unknown",
-                        time: post.indexed_at ?? "",
-                      }}
-                    />
-                  ))
+                  <div>
+                    {topPosts.map(post => (
+                      <HelpRequestPost
+                        key={post.uri}
+                        data={{
+                          handle: post.author ?? 'Anonymous',
+                          category: post.disaster_type ?? 'unknown',
+                          severity: post.severity_level ?? 'unknown',
+                          text: post.original_text ?? '',
+                          location: post.location_mentioned ?? 'unknown',
+                          time: post.indexed_at ?? '',
+                        }}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
             </Card>
+          ) : (
+            <Card className="w-full">
+              <div className="card-header"> <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Help Requests</h3></div>
+              <div className="p-0 overflow-y-auto max-h-[480px] flex flex-col items-center">
+                {visibleHelpCards.length === 0 ? (
+                  <p className="text-center text-slate-500">No posts found.</p>
+                ) : (
+                  <div>
+                    {visibleHelpCards.map((post) => (
+                      <HelpRequestPost
+                        key={post.uri}
+                        data={{
+                          handle: post.author ?? 'Anonymous',
+                          category: post.disaster_type ?? 'unknown',
+                          severity: post.severity_level ?? 'unknown',
+                          text: post.original_text ?? '',
+                          location: post.location_mentioned ?? 'unknown',
+                          time: post.indexed_at ?? '',
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+                
           )}
         </CardContent>
       </Card>
