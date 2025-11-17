@@ -102,6 +102,7 @@ function App() {
     if (showHelpList) return []; // not in top-posts mode
     return [...visibleMapPoints]
       .sort((a, b) => (b.like_count ?? 0) - (a.like_count ?? 0))
+      .slice(0, 50); //this is there to help with load time ...
   }, [visibleMapPoints, showHelpList]);
 
   useEffect(() => {
@@ -254,7 +255,8 @@ function App() {
           {!showHelpList ? (
             <Card className="w-full">
               <div className="card-header"> <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Top Posts</h3></div>
-              <div className="p-0 overflow-y-auto overflow-x-hidden max-h-[480px] flex flex-col items-center">
+              {/*<div className="p-0 overflow-y-auto overflow-x-hidden max-h-[480px] flex flex-col items-center">*/}
+              <div className="p-0 overflow-y-auto overflow-x-hidden max-h-[540px] flex flex-col items-center">
                 {topPosts.length === 0 ? (
                   <p className="text-center text-slate-500">No posts found.</p>
                 ) : (
@@ -279,7 +281,8 @@ function App() {
           ) : (
             <Card className="w-full">
               <div className="card-header"> <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Help Requests</h3></div>
-              <div className="p-0 overflow-y-auto max-h-[480px] flex flex-col items-center">
+              {/*<div className="p-0 overflow-y-auto overflow-x-hidden max-h-[480px] flex flex-col items-center">*/}
+              <div className="p-0 overflow-y-auto overflow-x-hidden max-h-[540px] flex flex-col items-center">
                 {visibleHelpCards.length === 0 ? (
                   <p className="text-center text-slate-500">No posts found.</p>
                 ) : (
