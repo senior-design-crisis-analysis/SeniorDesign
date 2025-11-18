@@ -70,8 +70,8 @@ export default function TableSkeetTable() {
       setLoading(true);
       const { data, error } = await supabase
         .from("be_extracted_info_output")
-        .select("*")
-        //.limit(10000);
+        .select("*");
+      //.limit(10000);
 
       if (error) console.error(error);
       else setData(data || []);

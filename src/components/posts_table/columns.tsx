@@ -128,10 +128,13 @@ export const columns: ColumnDef<TableSkeet>[] = [
         <span style={{ color: "#64748B", fontWeight: 400, fontSize: "14px" }}>
           Location
         </span>
-
         <ArrowUpDown className="ml-0 h-4 w-4 text-slate-500" />
       </Button>
     ),
+    cell: ({ row }) => {
+      const location = row.getValue("location_mentioned") as string;
+      return location || "-";
+    },
     size: 200,
   },
   {
@@ -259,6 +262,10 @@ export const columns: ColumnDef<TableSkeet>[] = [
         <ArrowUpDown className="ml-0 h-4 w-4 text-slate-500" />
       </Button>
     ),
+    cell: ({ row }) => {
+      const author = row.getValue("author") as string;
+      return author || "-";
+    },
     size: 200,
   },
 ];
