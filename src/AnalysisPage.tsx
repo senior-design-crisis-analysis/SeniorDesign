@@ -32,8 +32,7 @@ export default function AnalysisPage() {
         setLoading(true);
         const { data, error } = await supabase
           .from("be_extracted_info_output")
-          .select("*")
-          .limit(3000);
+          .select("*");
 
         if (error) {
           setError(error.message);

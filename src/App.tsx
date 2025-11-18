@@ -77,9 +77,9 @@ function App() {
 
   const visibleMapPoints = useMemo(() => {
     const from = dateRange?.from;
-    const to   = dateRange?.to;
+    const to = dateRange?.to;
     if (!from || !to) {
-      return []; 
+      return [];
     }
     const base = posts.filter(
       (p) =>
@@ -151,7 +151,8 @@ function App() {
             Disaster Posts in the United States
           </CardTitle>
           <CardDescription className="text-left">
-            Showing {visibleMapPoints.length.toLocaleString()} posts with associated locations from Bluesky
+            Showing {visibleMapPoints.length.toLocaleString()} posts with
+            associated locations from Bluesky
           </CardDescription>
           <CardAction>
             <div className="flex items-center space-x-2 z-[1000]">
@@ -173,7 +174,7 @@ function App() {
                 <PopoverContent className="w-auto p-0 z-[1000]" align="start">
                   <Calendar
                     mode="range"
-                    required={false}  
+                    required={false}
                     defaultMonth={dateRange?.from}
                     selected={dateRange}
                     onSelect={setDateRange}
@@ -245,32 +246,37 @@ function App() {
           <HeatMap
             posts={visibleMapPoints.filter(
               (p): p is DisasterRow =>
-                p.latitude       !== null &&
-                p.longitude      !== null &&
-                p.disaster_type  !== null &&
+                p.latitude !== null &&
+                p.longitude !== null &&
+                p.disaster_type !== null &&
                 p.severity_level !== null
             )}
           />
 
           {!showHelpList ? (
             <Card className="w-full">
-              <div className="card-header"> <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Top Posts</h3></div>
+              <div className="card-header">
+                {" "}
+                <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                  Top Posts
+                </h3>
+              </div>
               {/*<div className="p-0 overflow-y-auto overflow-x-hidden max-h-[480px] flex flex-col items-center">*/}
               <div className="p-0 overflow-y-auto overflow-x-hidden max-h-[540px] flex flex-col items-center">
                 {topPosts.length === 0 ? (
                   <p className="text-center text-slate-500">No posts found.</p>
                 ) : (
                   <div>
-                    {topPosts.map(post => (
+                    {topPosts.map((post) => (
                       <HelpRequestPost
                         key={post.uri}
                         data={{
-                          handle: post.author ?? 'Anonymous',
-                          category: post.disaster_type ?? 'unknown',
-                          severity: post.severity_level ?? 'unknown',
-                          text: post.original_text ?? '',
-                          location: post.location_mentioned ?? 'unknown',
-                          time: post.indexed_at ?? '',
+                          handle: post.author ?? "Anonymous",
+                          category: post.disaster_type ?? "unknown",
+                          severity: post.severity_level ?? "unknown",
+                          text: post.original_text ?? "",
+                          location: post.location_mentioned ?? "unknown",
+                          time: post.indexed_at ?? "",
                         }}
                       />
                     ))}
@@ -280,7 +286,12 @@ function App() {
             </Card>
           ) : (
             <Card className="w-full">
-              <div className="card-header"> <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Help Requests</h3></div>
+              <div className="card-header">
+                {" "}
+                <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                  Help Requests
+                </h3>
+              </div>
               {/*<div className="p-0 overflow-y-auto overflow-x-hidden max-h-[480px] flex flex-col items-center">*/}
               <div className="p-0 overflow-y-auto overflow-x-hidden max-h-[540px] flex flex-col items-center">
                 {visibleHelpCards.length === 0 ? (
@@ -291,12 +302,12 @@ function App() {
                       <HelpRequestPost
                         key={post.uri}
                         data={{
-                          handle: post.author ?? 'Anonymous',
-                          category: post.disaster_type ?? 'unknown',
-                          severity: post.severity_level ?? 'unknown',
-                          text: post.original_text ?? '',
-                          location: post.location_mentioned ?? 'unknown',
-                          time: post.indexed_at ?? '',
+                          handle: post.author ?? "Anonymous",
+                          category: post.disaster_type ?? "unknown",
+                          severity: post.severity_level ?? "unknown",
+                          text: post.original_text ?? "",
+                          location: post.location_mentioned ?? "unknown",
+                          time: post.indexed_at ?? "",
                         }}
                       />
                     ))}
@@ -304,7 +315,6 @@ function App() {
                 )}
               </div>
             </Card>
-                
           )}
         </CardContent>
       </Card>
