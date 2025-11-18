@@ -8,7 +8,7 @@ export default function Nav() {
 
   const navLinks = [
     { label: "Data Table", href: "/datatable" },
-    { label: "Anaylsis", href: "/analysis" },
+    { label: "Analysis", href: "/analysis" },
     { label: "Resources", href: "/resources" },
   ];
 
