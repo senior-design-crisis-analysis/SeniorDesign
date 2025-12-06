@@ -210,7 +210,7 @@ async function startFirehose() {
   });
 
   jetstream.on('close', () => {
-    console.log('🔌 Connection closed');
+    console.log('Connection closed');
   });
 
   jetstream.start();
