@@ -39,13 +39,13 @@ async function deleteNonEnglishPosts() {
     
     processed++;
     if (processed % 100 === 0) {
-      console.log(`✅ Analyzed ${processed}/${posts.length}`);
+      console.log(`Analyzed ${processed}/${posts.length}`);
     }
   }
   
-  console.log(`\n📊 Results:`);
-  console.log(`✅ English posts: ${posts.length - nonEnglishUris.length}`);
-  console.log(`❌ Non-English posts: ${nonEnglishUris.length}`);
+  console.log(`\nResults:`);
+  console.log(`English posts: ${posts.length - nonEnglishUris.length}`);
+  console.log(`Non-English posts: ${nonEnglishUris.length}`);
   
   if (nonEnglishUris.length === 0) {
     console.log('🎉 No non-English posts to delete!');

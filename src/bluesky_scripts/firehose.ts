@@ -9,7 +9,7 @@ import WebSocket from "ws";
 
 // Validate environment variables
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ Missing environment variables!');
+  console.error('Missing environment variables!');
   console.error('Please set SUPABASE_URL and SUPABASE_KEY');
   console.error('\nCurrent values:');
   console.error('SUPABASE_URL:', process.env.SUPABASE_URL || 'NOT SET');
@@ -20,7 +20,7 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
 const CONFIG = {
   // Supabase credentials
   SUPABASE_URL: process.env.SUPABASE_URL!,
-  SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!, 
   
   // Filter settings
   KEYWORDS: ['vehicle collision', 'freeway crash', 'highway crash', 'mult-car pileup', 'traffic fatality', 'drunk driving',
@@ -38,6 +38,7 @@ const CONFIG = {
   LANGUAGES: ['eng'], 
   TRACKED_ACCOUNTS: ['nws.noaa.gov', 'fema.govmirrors.com', 'actionnews5.com', 'npr.org', 'sacurrent.bsky.social', 'calfire.bsky.social', 'cbssundaymorning.bsky.social', 'ucanr.edu',
     'massdfs.bsky.social', 'denverpolice.bsky.social'],
+
   MAX_POSTS: 10000, // TODO: change to 1000
 
 };
@@ -62,7 +63,7 @@ async function getTrackedAccountDIDs(): Promise<Set<string>> {
         const profile = await agent.resolveHandle({ handle: account });
         dids.add(profile.data.did);
         DIDcache.set(account, profile.data.did);
-        console.log(`✅ Resolved ${account} -> ${profile.data.did}`);
+        console.log(`Resolved ${account} -> ${profile.data.did}`);
       
     } catch (error: any) {
       // Handle specific error types
@@ -111,17 +112,17 @@ function matchesLanguage(text: string, languages: string[]): boolean {
 
 // Main function
 async function startFirehose() {
-  console.log('🚀 Starting Bluesky Firehose...');
-  console.log(`📊 Config: Max ${CONFIG.MAX_POSTS} posts`);
-  console.log(`🔑 Keywords: ${CONFIG.KEYWORDS.length ? CONFIG.KEYWORDS.join(', ') : 'ALL'}`);
-  console.log(`🌍 Languages: ${CONFIG.LANGUAGES.length ? CONFIG.LANGUAGES.join(', ') : 'ALL'}`);
-  console.log(`👥 Tracked Accounts: ${CONFIG.TRACKED_ACCOUNTS.length ? CONFIG.TRACKED_ACCOUNTS.join(', ') : 'NONE'}`);
+  console.log('Starting Bluesky Firehose...');
+  console.log(`Config: Max ${CONFIG.MAX_POSTS} posts`);
+  console.log(`Keywords: ${CONFIG.KEYWORDS.length ? CONFIG.KEYWORDS.join(', ') : 'ALL'}`);
+  console.log(`Languages: ${CONFIG.LANGUAGES.length ? CONFIG.LANGUAGES.join(', ') : 'ALL'}`);
+  console.log(`Tracked Accounts: ${CONFIG.TRACKED_ACCOUNTS.length ? CONFIG.TRACKED_ACCOUNTS.join(', ') : 'NONE'}`);
 
   console.log('---');
   
   console.log('🔄 Resolving tracked accounts...');
   const trackedDIDs = await getTrackedAccountDIDs();
-  console.log(`✅ Tracking ${trackedDIDs.size} accounts`);
+  console.log(`Tracking ${trackedDIDs.size} accounts`);
   console.log('---');
 
   const jetstream = new Jetstream({
@@ -132,7 +133,7 @@ async function startFirehose() {
   jetstream.on('commit', async (event: any) => {
     // Stop if we've reached the limit
     if (collectedPosts >= CONFIG.MAX_POSTS) {
-      console.log(`✅ Reached limit of ${CONFIG.MAX_POSTS} posts. Stopping...`);
+      console.log(`Reached limit of ${CONFIG.MAX_POSTS} posts. Stopping...`);
       jetstream.close();
       process.exit(0);
     }
@@ -220,7 +221,7 @@ startFirehose();
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\n⚠️  Shutting down gracefully...');
+  console.log('\n⚠️ Shutting down gracefully...');
   console.log(`📊 Total posts collected: ${collectedPosts}`);
   process.exit(0);
 });

@@ -38,7 +38,7 @@ async function updatePostAuthor(uri: string): Promise<{ success: boolean; author
 
     // Update in database
     const { error } = await supabase
-      .from('processing_queue')
+      .from('be_extracted_info_output')
       .update({ author: authorHandle })
       .eq('uri', uri);
 
@@ -65,11 +65,11 @@ async function updateAllAuthors() {
   let offset = 0;
 
   while (hasMore) {
-    console.log(`📦 Fetching batch starting at offset ${offset}...`);
+    console.log(`Fetching batch starting at offset ${offset}...`);
     
     // Fetch batch of posts
     const { data: posts, error } = await supabase
-      .from('processing_queue')
+      .from('be_extracted_info_output')
       .select('uri')
       .order('indexed_at', { ascending: false })
       .range(offset, offset + CONFIG.BATCH_SIZE - 1);
@@ -81,7 +81,7 @@ async function updateAllAuthors() {
 
     if (!posts || posts.length === 0) {
       hasMore = false;
-      console.log('✅ No more posts to process');
+      console.log('No more posts to process');
       break;
     }
 
@@ -95,7 +95,7 @@ async function updateAllAuthors() {
       
       if (result.success) {
         totalUpdated++;
-        console.log(`✅ [${totalProcessed}] Updated ${post.uri.slice(0, 50)}...`);
+        console.log(`[${totalProcessed}] Updated ${post.uri.slice(0, 50)}...`);
         console.log(`   Author: ${result.author}`);
       } else {
         totalFailed++;
@@ -119,15 +119,15 @@ async function updateAllAuthors() {
   }
 
   console.log('\n🎉 Author update complete!');
-  console.log(`✅ Successfully updated: ${totalUpdated}`);
+  console.log(`Successfully updated: ${totalUpdated}`);
   console.log(`❌ Failed: ${totalFailed}`);
-  console.log(`📊 Total processed: ${totalProcessed}`);
+  console.log(`Total processed: ${totalProcessed}`);
 }
 
 // Run the script
 updateAllAuthors()
   .then(() => {
-    console.log('\n✨ Script finished');
+    console.log('\nScript finished');
     process.exit(0);
   })
   .catch((error) => {

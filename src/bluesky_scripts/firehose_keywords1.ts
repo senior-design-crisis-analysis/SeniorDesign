@@ -7,7 +7,7 @@ import WebSocket from "ws";
 dotenv.config();
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error("❌ Missing Supabase environment variables");
+  console.error("Missing Supabase environment variables");
   process.exit(1);
 }
 
@@ -46,9 +46,9 @@ function containsKeyword(text: string): boolean {
 }
 
 async function startFirehose(retryCount = 0) {
-  console.log(`🚀 Starting Keyword Firehose (attempt ${retryCount + 1})...`);
-  console.log(`📊 Collecting up to ${CONFIG.MAX_POSTS} posts`);
-  console.log(`🔑 Keywords: ${CONFIG.KEYWORDS.length}`);
+  console.log(`Starting Keyword Firehose (attempt ${retryCount + 1})...`);
+  console.log(`Collecting up to ${CONFIG.MAX_POSTS} posts`);
+  console.log(`Keywords: ${CONFIG.KEYWORDS.length}`);
 
   const jetstream = new Jetstream({
     wantedCollections: ["app.bsky.feed.post"],
@@ -66,7 +66,7 @@ async function startFirehose(retryCount = 0) {
 
   jetstream.on("commit", async (event: any) => {
     if (collectedPosts >= CONFIG.MAX_POSTS) {
-      console.log(`✅ Reached ${CONFIG.MAX_POSTS} posts — stopping.`);
+      console.log(`Reached ${CONFIG.MAX_POSTS} posts — stopping.`);
       jetstream.close();
       process.exit(0);
     }
@@ -90,32 +90,32 @@ async function startFirehose(retryCount = 0) {
 
     if (error) {
       if (error.code !== "23505") {
-        console.error("❌ Insert error:", error.message);
+        console.error("Insert error:", error.message);
       }
       return;
     }
 
     collectedPosts++;
     if (collectedPosts % 100 === 0) {
-      console.log(`📈 Collected ${collectedPosts} posts...`);
+      console.log(`Collected ${collectedPosts} posts...`);
     }
   });
 
   jetstream.on("error", async (err: Error) => {
-    console.error("❌ Jetstream error:", err.message);
+    console.error("Jetstream error:", err.message);
     jetstream.close();
 
     if (retryCount < CONFIG.MAX_RETRIES) {
-      console.log(`⏳ Retrying in ${CONFIG.RETRY_DELAY / 1000}s...`);
+      console.log(`Retrying in ${CONFIG.RETRY_DELAY / 1000}s...`);
       setTimeout(() => startFirehose(retryCount + 1), CONFIG.RETRY_DELAY);
     } else {
-      console.error("❌ Max retries reached — exiting.");
+      console.error("Max retries reached — exiting.");
       process.exit(1);
     }
   });
 
   jetstream.on("close", () => {
-    console.log("🔌 Connection closed");
+    console.log("Connection closed");
   });
 
   jetstream.start();

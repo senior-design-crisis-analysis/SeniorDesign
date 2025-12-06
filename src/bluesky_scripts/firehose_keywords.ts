@@ -50,9 +50,9 @@ function containsKeyword(text: string): boolean {
 }
 
 async function startFirehose() {
-  console.log("🚀 Starting Keyword Firehose...");
-  console.log(`📊 Collecting up to ${CONFIG.MAX_POSTS} posts`);
-  console.log(`🔑 Keywords: ${CONFIG.KEYWORDS.length}`);
+  console.log("Starting Keyword Firehose...");
+  console.log(`Collecting up to ${CONFIG.MAX_POSTS} posts`);
+  console.log(`Keywords: ${CONFIG.KEYWORDS.length}`);
 
   const jetstream = new Jetstream({
     wantedCollections: ["app.bsky.feed.post"],
@@ -62,7 +62,7 @@ async function startFirehose() {
   // ⏱️ Run for 5 hours
   const RUN_DURATION = 5 * 60 * 60 * 1000; // 5 hours
   setTimeout(() => {
-    console.log("\n⏰ Time limit reached — shutting down...");
+    console.log("\Time limit reached — shutting down...");
     console.log(`📊 Total posts collected: ${collectedPosts}`);
     process.exit(0);
   }, RUN_DURATION);
@@ -97,7 +97,7 @@ async function startFirehose() {
 
     collectedPosts++;
     if (collectedPosts % 100 === 0) {
-      console.log(`📈 Collected ${collectedPosts} posts...`);
+      console.log(`Collected ${collectedPosts} posts...`);
     }
   });
 

@@ -7,7 +7,7 @@ dotenv.config();
 
 // --- Environment Validation ---
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ Missing environment variables!');
+  console.error('Missing environment variables!');
   process.exit(1);
 }
 
@@ -46,9 +46,9 @@ async function getTrackedAccountDIDs(): Promise<Set<string>> {
       const profile = await agent.resolveHandle({ handle: account });
       dids.add(profile.data.did);
       DIDcache.set(account, profile.data.did);
-      console.log(`✅ Resolved ${account} → ${profile.data.did}`);
+      console.log(`Resolved ${account} → ${profile.data.did}`);
     } catch (error: any) {
-      console.warn(`⚠️  Could not resolve ${account}: ${error?.message}`);
+      console.warn(`Could not resolve ${account}: ${error?.message}`);
     }
   }
   return dids;
@@ -60,7 +60,7 @@ async function startFirehose() {
   console.log(`👥 Tracking ${CONFIG.TRACKED_ACCOUNTS.length} accounts...`);
 
   const trackedDIDs = await getTrackedAccountDIDs();
-  console.log(`✅ ${trackedDIDs.size} DIDs ready\n---`);
+  console.log(`${trackedDIDs.size} DIDs ready\n---`);
 
   const jetstream = new Jetstream({
     wantedCollections: ['app.bsky.feed.post'],
@@ -71,7 +71,7 @@ async function startFirehose() {
   const RUN_DURATION = 5 * 60 * 60 * 1000; // 5 hours
 
   setTimeout(() => {
-    console.log('⏰ Time limit reached — stopping firehose...');
+    console.log('Time limit reached — stopping firehose...');
     jetstream.close();
     console.log(`📊 Total posts collected: ${collectedPosts}`);
     process.exit(0);
@@ -127,7 +127,7 @@ async function startFirehose() {
   });
 
   jetstream.on('close', () => {
-    console.log('🔌 Connection closed');
+    console.log('Connection closed');
   });
 
   jetstream.start();
@@ -138,7 +138,7 @@ async function startFirehose() {
 startFirehose();
 
 process.on('SIGINT', () => {
-  console.log('\n⚠️ Graceful shutdown...');
+  console.log('\nGraceful shutdown...');
   console.log(`📊 Total posts collected: ${collectedPosts}`);
   process.exit(0);
 });
