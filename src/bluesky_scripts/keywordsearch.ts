@@ -25,8 +25,8 @@ async function login() {
 }
 // scrape by keyword search method
 async function scrapeBySearch(query: string, maxPosts: number = 1000) {
-  console.log(`\n🔍 Searching for: "${query}"`);
-  console.log(`🎯 Target: ${maxPosts} posts`);
+  console.log(`\nSearching for: "${query}"`);
+  console.log(`Target: ${maxPosts} posts`);
   
   let cursor: string | undefined;
   let totalFetched = 0;
@@ -45,10 +45,10 @@ async function scrapeBySearch(query: string, maxPosts: number = 1000) {
       });
 
       const posts = res.data.posts;
-      console.log(`📦 Fetched ${posts.length} posts from API`);
+      console.log(`Fetched ${posts.length} posts from API`);
       
       if (!posts.length) {
-        console.log('⚠️ No more posts found');
+        console.log('No more posts found');
         break;
       }
 
@@ -70,7 +70,7 @@ async function scrapeBySearch(query: string, maxPosts: number = 1000) {
       const existingUris = new Set(existing?.map(p => p.uri) || []);
       const newRows = rows.filter(r => !existingUris.has(r.uri));
 
-      console.log(`🔍 Found ${newRows.length} new posts out of ${rows.length}`);
+      console.log(`Found ${newRows.length} new posts out of ${rows.length}`);
 
       // Insert only new posts
       if (newRows.length > 0) {
@@ -85,19 +85,19 @@ async function scrapeBySearch(query: string, maxPosts: number = 1000) {
         }
 
         totalNew += newRows.length;
-        console.log(`✅ Inserted ${newRows.length} new posts`);
+        console.log(`Inserted ${newRows.length} new posts`);
       } else {
-        console.log(`⏭️ All posts already exist, continuing...`);
+        console.log(`All posts already exist, continuing...`);
       }
 
       totalFetched += posts.length;
-      console.log(`📊 Progress: ${totalFetched}/${maxPosts} processed | ${totalNew} new posts added`);
+      console.log(`Progress: ${totalFetched}/${maxPosts} processed | ${totalNew} new posts added`);
 
       cursor = res.data.cursor;
-      console.log(`📍 Cursor: ${cursor ? 'exists' : 'NONE'}`);
+      console.log(`Cursor: ${cursor ? 'exists' : 'NONE'}`);
 
       if (!cursor) {
-        console.log('⚠️ No more results available for this query');
+        console.log('No more results available for this query');
         break;
       }
 
@@ -110,10 +110,10 @@ async function scrapeBySearch(query: string, maxPosts: number = 1000) {
     }
   }
 
-  console.log(`\n🎉 Search complete for "${query}"`);
-  console.log(`📊 Total processed: ${totalFetched} posts`);
-  console.log(`✨ New posts added: ${totalNew}`);
-  console.log(`🔄 Already existed: ${totalFetched - totalNew}`);
+  console.log(`\nSearch complete for "${query}"`);
+  console.log(`Total processed: ${totalFetched} posts`);
+  console.log(`New posts added: ${totalNew}`);
+  console.log(`Already existed: ${totalFetched - totalNew}`);
   
   return totalNew;
 }
@@ -132,8 +132,8 @@ async function scrapeMultipleTopics(queries: string[], maxPerQuery: number = 500
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
 
-  console.log(`\n🎊 ALL SEARCHES COMPLETE!`);
-  console.log(`🌟 Grand total: ${grandTotal} new posts added`);
+  console.log(`\nALL SEARCHES COMPLETE!`);
+  console.log(`Grand total: ${grandTotal} new posts added`);
 }
 
 

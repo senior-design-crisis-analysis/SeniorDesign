@@ -58,8 +58,8 @@ async function updatePostEngagement(uri: string): Promise<{ success: boolean; co
 
 // Main function
 async function updateAllEngagements() {
-  console.log('🚀 Starting engagement count updater...');
-  console.log(`📊 Batch size: ${CONFIG.BATCH_SIZE}`);
+  console.log('Starting engagement count updater...');
+  console.log(`Batch size: ${CONFIG.BATCH_SIZE}`);
   console.log('---\n');
 
   let totalProcessed = 0;
@@ -69,7 +69,7 @@ async function updateAllEngagements() {
   let offset = 0;
 
   while (hasMore) {
-    console.log(`📦 Fetching batch starting at offset ${offset}...`);
+    console.log(`Fetching batch starting at offset ${offset}...`);
     
     // Fetch batch of posts
     const { data: posts, error } = await supabase
@@ -79,7 +79,7 @@ async function updateAllEngagements() {
       .range(offset, offset + CONFIG.BATCH_SIZE - 1);
 
     if (error) {
-      console.error('❌ Error fetching posts:', error.message);
+      console.error('Error fetching posts:', error.message);
       break;
     }
 
@@ -99,11 +99,11 @@ async function updateAllEngagements() {
       
       if (result.success) {
         totalUpdated++;
-        console.log(`✅ [${totalProcessed}] Updated ${post.uri.slice(0, 50)}...`);
+        console.log(`[${totalProcessed}] Updated ${post.uri.slice(0, 50)}...`);
         console.log(`   Likes: ${result.counts?.like_count}, Reposts: ${result.counts?.repost_count}, Replies: ${result.counts?.reply_count}`);
       } else {
         totalFailed++;
-        console.log(`❌ [${totalProcessed}] Failed ${post.uri.slice(0, 50)}...`);
+        console.log(`[${totalProcessed}] Failed ${post.uri.slice(0, 50)}...`);
         console.log(`   Error: ${result.error}`);
       }
 
@@ -122,10 +122,10 @@ async function updateAllEngagements() {
     console.log(`\n📊 Progress: ${totalUpdated} updated, ${totalFailed} failed, ${totalProcessed} total\n`);
   }
 
-  console.log('\n🎉 Engagement update complete!');
-  console.log(`✅ Successfully updated: ${totalUpdated}`);
-  console.log(`❌ Failed: ${totalFailed}`);
-  console.log(`📊 Total processed: ${totalProcessed}`);
+
+  console.log(`Successfully updated: ${totalUpdated}`);
+  console.log(`Failed: ${totalFailed}`);
+  console.log(`Total processed: ${totalProcessed}`);
 }
 
 // Run the script

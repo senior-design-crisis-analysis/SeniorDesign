@@ -243,19 +243,19 @@ async function backfillAll(username: string) {
         }
         
         totalNew += newRows.length;
-        console.log(`✅ Inserted ${newRows.length} NEW posts (${rows.length - newRows.length} already existed)`);
+        console.log(`Inserted ${newRows.length} NEW posts (${rows.length - newRows.length} already existed)`);
       } else {
-        console.log(`⏭️ All ${rows.length} posts already exist, continuing...`);
+        console.log(`All ${rows.length} posts already exist, continuing...`);
       }
       
       totalFetched += feed.length;
-      console.log(`📊 Total processed: ${totalFetched} | Total new: ${totalNew}`);
+      console.log(`Total processed: ${totalFetched} | Total new: ${totalNew}`);
 
       cursor = res.data.cursor;
-      console.log(`📍 Cursor: ${cursor ? 'exists' : 'NONE'}`);
+      console.log(`Cursor: ${cursor ? 'exists' : 'NONE'}`);
       
       if (!cursor) {
-        console.log('✅ Reached end of user\'s timeline');
+        console.log('Reached end of user\'s timeline');
         break;
       }
       
@@ -268,10 +268,10 @@ async function backfillAll(username: string) {
     }
   }
 
-  console.log(`\n🎉 Backfill complete!`);
-  console.log(`📊 Processed: ${totalFetched} posts`);
-  console.log(`✨ New posts added: ${totalNew}`);
-  console.log(`🔄 Already existed: ${totalFetched - totalNew}`);
+  console.log(`\nBackfill complete!`);
+  console.log(`Processed: ${totalFetched} posts`);
+  console.log(`New posts added: ${totalNew}`);
+  console.log(`Already existed: ${totalFetched - totalNew}`);
 }
 // ---------------- Main Execution ----------------
 async function main() {
